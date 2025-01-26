@@ -28,14 +28,30 @@ module.exports = defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
 
-  // This has been edited by RanjithKumar
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+ //  reporter: 'html',
+ 
+  //==>Experiment  @Ranjith
+
   reporter: [
+    // Default HTML reporter
+    ['html', { open: 'never' }],
+  
+    // Custom HTML reporter with timestamp
     ['html', {
       outputFolder: path.join('Custom-playwright-report', `report-${getReadableTimestamp()}`), 
       open: 'never', // Don’t automatically open the report
     }]
   ],
+
+   // This has been edited by RanjithKumar
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  // reporter: [
+  //   ['html', {
+  //     outputFolder: path.join('Custom-playwright-report', `report-${getReadableTimestamp()}`), 
+  //     open: 'never', // Don’t automatically open the report
+  //   }]
+  // ],
 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
