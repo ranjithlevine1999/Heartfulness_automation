@@ -7,33 +7,34 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 test('Experience Mediataion',async({page})=>{ 
 try {
     
+ 
     //Launching the Browser
-    await page.goto('https://heartfulness.org/in-en');
-     await takeScreenshot(page, 'Browser launched')
+await page.goto('https://heartfulness.org/in-en');
+await takeScreenshot(page, 'Browser launched')
 
-    //Login
-       
-    // Sign in button
-    await page.click('//button[@aria-label="SIGN IN"]');
-    await takeScreenshot(page, 'Sign in button clicked')
-   
-    //sign in with Email
-    await page.locator('//button[contains(text(),"Sign in with Email")]').click();
+// Sign in button
+await page.click('//button[@aria-label="SIGN IN"]');
+await takeScreenshot(page, 'Sign in button clicked')
+
+//sign in with Email
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
     await takeScreenshot(page, 'Sign in with e-mail clicked')
-   
-    // Email field
-    await page.fill('#email','karadipai@mailinator.com');
+
+// Email field
+    await page.getByLabel('Email *').fill('karadipai@mailinator.com');
     await takeScreenshot(page, 'Given mail has entered')
-   
+
     //Password field
-    await page.fill('#password','Test@123');
+    await page.getByLabel('Password', { exact: true }).fill('Test@123');
     await takeScreenshot(page, 'Password has been entered')
-   
-    //Login button
-    await page.locator('//button[contains(text(),"Login")]').click();
-    await takeScreenshot(page, 'Login button clicked')
-   
     
+    //Login button
+await page.getByRole('button', { name: 'Sign In' }).click();
+await takeScreenshot(page, 'Login button clicked')
+
+
+
+
 
     //EXPERIENCE MEDITATION
     await page.locator("(//a[text()='EXPERIENCE MEDITATION'])[1]").click()

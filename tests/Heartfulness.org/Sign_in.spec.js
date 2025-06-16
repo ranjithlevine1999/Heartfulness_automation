@@ -2,31 +2,32 @@ const{test,expect}=require('@playwright/test')
 const { takeScreenshot  } = require('../../utils/CommonClass');
 
 test('sign in',async({page})=>{ 
+    await page.context().clearCookies();
 
     try{
- //Launching the Browser
- await page.goto('https://heartfulness.org/in-en');
+        //Launching the Browser
+ await page.goto('https://heartfulness.org/global');
  await takeScreenshot(page, 'Browser launched')
 
  // Sign in button
  await page.click('//button[@aria-label="SIGN IN"]');
  await takeScreenshot(page, 'Sign in button clicked')
 
- //sign in with Email
- await page.locator('//button[contains(text(),"Sign in with Email")]').click();
- await takeScreenshot(page, 'Sign in with e-mail clicked')
+//sign in with Email
+        await page.getByRole('link', { name: 'Signin with Email' }).click();
+        await takeScreenshot(page, 'Sign in with e-mail clicked')
 
- // Email field
- await page.fill('#email','karadipai@mailinator.com');
- await takeScreenshot(page, 'Given mail has entered')
+// Email field
+        await page.getByLabel('Email *').fill('karadipai@mailinator.com');
+        await takeScreenshot(page, 'Given mail has entered')
 
- //Password field
- await page.fill('#password','Test@123');
- await takeScreenshot(page, 'Password has been entered')
-
- //Login button
- await page.locator('//button[contains(text(),"Login")]').click();
- await takeScreenshot(page, 'Login button clicked')
+        //Password field
+        await page.getByLabel('Password', { exact: true }).fill('Test@123');
+        await takeScreenshot(page, 'Password has been entered')
+        
+        //Login button
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await takeScreenshot(page, 'Login button clicked')
 
  
     }
