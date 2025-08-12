@@ -1,0 +1,36 @@
+const{test,expect}=require('@playwright/test')
+const { takeScreenshot  } = require('../../utils/CommonClass');
+
+// Utility function for sleep
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+test('My Account', async ({ page }) => {
+  await page.goto('https://contributions.staging.heartfulness.org/in-en');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+
+  await page.getByRole('link', { name: 'Signin with Email' }).click();
+  await page.getByLabel('Email *').click();
+
+  await page.getByLabel('Email *').fill('karadipai@mailinator.com');
+  await page.getByLabel('Password', { exact: true }).click();
+  await page.getByLabel('Password', { exact: true }).fill('Test@123');
+
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByRole('button', { name: 'Automated Name' }).click();
+  const page1Promise = page.waitForEvent('popup');
+
+  await page.getByRole('button', { name: 'My Account' }).click();
+
+  const page1 = await page1Promise;
+  await page1.getByRole('link', { name: 'Signin with Email' }).click();
+  await page1.getByLabel('Email *').click();
+  
+  await page1.getByLabel('Email *').fill('karadipai@mailinator.com');
+
+  await page1.getByLabel('Password', { exact: true }).click();
+  await page1.getByLabel('Password', { exact: true }).fill('Test@123');
+
+  await page1.getByRole('button', { name: 'Sign In' }).click();
+  await page1.goto('https://my.heartfulness.org/');
+});

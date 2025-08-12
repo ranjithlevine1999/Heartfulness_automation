@@ -53,22 +53,42 @@ test('Home page without login', async ({ page }) => {
   }
 
   // Slides
-  const slides = [
-    { label: 'slide item 2', description: 'Slide Item 2' },
-    { label: 'slide item 3', description: 'Slide Item 3' },
-    { label: 'slide item 4', description: 'Slide Item 4' },
-    { label: 'slide item 5', description: 'Slide Item 5' },
-    { label: 'slide item 6', description: 'Slide Item 6' }
-  ];
 
-  for (const slide of slides) {
-    try {
-      await page.getByLabel(slide.label).click();
-      await takeScreenshot(page, slide.description);
-    } catch (error) {
-      console.error(`Error interacting with ${slide.description}:`, error);
-    }
+  const slides = [
+  { selector: 'li:nth-child(2) > button', description: 'Slide Item 2' },
+  { selector: 'li:nth-child(3) > button', description: 'Slide Item 3' },
+  { selector: 'li:nth-child(4) > button', description: 'Slide Item 4' },
+  { selector: 'li:nth-child(5) > button', description: 'Slide Item 5' },
+  { selector: 'li:nth-child(6) > button', description: 'Slide Item 6' }
+];
+
+for (const slide of slides) {
+  try {
+    await page.locator(slide.selector).click();
+    await takeScreenshot(page, slide.description);
+  } catch (error) {
+    console.error(`Error interacting with ${slide.description}:`, error);
   }
+}
+
+  // const slides = [
+  //   // { label: 'slide item 2', description: 'Slide Item 2' },
+  //   // { label: 'slide item 3', description: 'Slide Item 3' },
+  //   // { label: 'slide item 4', description: 'Slide Item 4' },
+  //   // { label: 'slide item 5', description: 'Slide Item 5' },
+  //   // { label: 'slide item 6', description: 'Slide Item 6' }
+
+         
+  // ];
+
+  // for (const slide of slides) {
+  //   try {
+  //     await page.getByLabel(slide.label).click();
+  //     await takeScreenshot(page, slide.description);
+  //   } catch (error) {
+  //     console.error(`Error interacting with ${slide.description}:`, error);
+  //   }
+  // }
 
   try {
 

@@ -48,11 +48,17 @@ test('Language',async({page})=>{
            await page.goBack({ timeout: 10000 });
            await sleep(3000); 
 
-           await page.getByLabel('slide item 2').click();
-           await page.getByLabel('slide item 3').click();
-           await page.getByLabel('slide item 4').click();
-           await page.getByLabel('slide item 5').click();
-           await page.getByLabel('slide item 6').click();
+            await page.locator('li:nth-child(2) > button').click();
+  await page.locator('li:nth-child(3) > button').click();
+  await page.locator('li:nth-child(4) > button').click();
+  await page.locator('li:nth-child(5) > button').click();
+  await page.locator('li:nth-child(6) > button').click();
+  
+        //    await page.getByLabel('slide item 2').click();
+        //    await page.getByLabel('slide item 3').click();
+        //    await page.getByLabel('slide item 4').click();
+        //    await page.getByLabel('slide item 5').click();
+        //    await page.getByLabel('slide item 6').click();
 
            await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
            await page.goto('https://heartfulness.org/global');
@@ -68,11 +74,12 @@ test('Language',async({page})=>{
            await page.goBack({ timeout: 10000 });
            await sleep(3000); 
 
-           await page.getByLabel('slide item 2').dblclick();
-           await page.getByLabel('slide item 3').click();
-           await page.getByLabel('slide item 4').click();
-           await page.getByLabel('slide item 5').click();
-           await page.getByLabel('slide item 6').click();
+           
+            await page.locator('li:nth-child(2) > button').click();
+  await page.locator('li:nth-child(3) > button').click();
+  await page.locator('li:nth-child(4) > button').click();
+  await page.locator('li:nth-child(5) > button').click();
+  await page.locator('li:nth-child(6) > button').click();
            
            await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
 
@@ -110,11 +117,12 @@ test('Language',async({page})=>{
            await page.goBack({ timeout: 10000 });
            await sleep(3000); 
 
-           await page.getByLabel('slide item 2').click();
-  await page.getByLabel('slide item 3').click();
-  await page.getByLabel('slide item 4').click();
-  await page.getByLabel('slide item 5').click();
-  await page.getByLabel('slide item 6').click();
+          
+            await page.locator('li:nth-child(2) > button').click();
+  await page.locator('li:nth-child(3) > button').click();
+  await page.locator('li:nth-child(4) > button').click();
+  await page.locator('li:nth-child(5) > button').click();
+  await page.locator('li:nth-child(6) > button').click();
 
   await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
 
