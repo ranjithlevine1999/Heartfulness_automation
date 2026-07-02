@@ -3,3 +3,7 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+trace.zip
+Custom-playwright-report/
+Screenshots/
+.DS_Store
