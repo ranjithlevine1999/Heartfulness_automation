@@ -11,6 +11,8 @@ test('Insights', async ({ page }) => {
     try{
         //Launching the Browser
  await page.goto('https://heartfulness.org/global');
+
+
  await takeScreenshot(page, 'Browser launched')
 
  // Sign in button
@@ -42,13 +44,16 @@ test('Insights', async ({ page }) => {
 
     
     try{
+         await sleep(2000);
         //Insight button
-        await page.getByRole('menuitem', { name: 'INSIGHTS' }).click();
+      await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
 
         //Simple Heartfulness
-        await page.getByRole('menuitem', { name: 'Simple Heartfulness Practices' }).click();
+        await page.getByRole('link', { name: 'Simple Heartfulness Practices' }).click();
 
-        await page.getByLabel('DOWNLOAD').click();
+
+        await page.getByRole('button', { name: 'Download the PDF Download' }).click();
+
         await page.goBack({ timeout: 10000 });
 
        
@@ -57,65 +62,55 @@ test('Insights', async ({ page }) => {
         console.log("Error with Insight", error.message);
     }
 
-    //Heartfulness Research
-try{
-    await page.getByRole('menuitem', { name: 'INSIGHTS' }).click();
-    const page1Promise = page.waitForEvent('popup');
 
-    await page.getByRole('menuitem', { name: 'Heartfulness Research' }).click();
-    const page1 = await page1Promise;
-      
-    const pageTitle = await page.title();
-    console.log(pageTitle);
-
-    await page1.close();
-}
-catch (error){
-
-        console.log("Error with Heartfulness Research", error.message);
-
-    }
-    //Heartfulness Magazine
-
-    try{
-        await page.getByRole('menuitem', { name: 'INSIGHTS' }).click();
-       
-
-        await sleep(3000);
-
-        await page.getByRole('menuitem', { name: 'Heartfulness Magazine' }).click();
-
-      const Magazine = await page.title();
-      console.log(Magazine);
-          
-
-         // await takeScreenshot(page, 'Got redirected to Heartfulness magazine')
-        
-          await page.close();
-
-    }
-    catch (error){
-
-        console.log("Error with Heartfulness magazine", error.message);
-
-    }
-
-     //Bhandara Message
-
-     try{
-        await page.getByRole('menuitem', { name: 'INSIGHTS' }).click();  
-
-        await sleep(3000);
-
-        await page.getByRole('link', { name: 'Bhandara Messages' }).click();
      
-          await takeScreenshot(page, 'Got redirected to Heartfulness magazine')
+    //Heartfulness Research
+    try{
         
-           }
-    catch (error){
-
-        console.log("Error with Bhandara message", error.message);
-
+        await sleep(2000);
+ await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
+   const page1Promise = page.waitForEvent('popup');
+  await page.locator('[id="\\31 1"]').getByRole('link', { name: 'Heartfulness Research' }).click();
+  const page1 = await page1Promise;
+  page1.close();
+         
+    }catch(error){
+        console.log("Error with Heartfulness Research", error.message);
     }
+
+
+    //Heartfulness Magazine
+  try{
+        
+     await sleep(2000);
+ //  await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
+  const page2Promise = page.waitForEvent('popup');
+  await page.locator('[id="\\31 0"]').getByRole('link', { name: 'Heartfulness Magazine' }).click();
+  const page2 = await page2Promise;
+   page2.close();
+         
+    }catch(error){
+        console.log("Error with  Heartfulness Magazine", error.message);
+    }
+
+
+//Daaji's messages
+  try{
+        
+     await sleep(2000);
+  // await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
+  const page3Promise = page.waitForEvent('popup');
+  await page.getByRole('link', { name: 'Daaji\'s messages' }).click();
+  const page3 = await page3Promise;
+    page3.close();
+
+         
+    }catch(error){
+        console.log("Error with  Daaji\'s messages", error.message);
+    }
+
+
+
+
 
 })

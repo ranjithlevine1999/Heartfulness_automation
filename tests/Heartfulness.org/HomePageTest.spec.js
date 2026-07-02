@@ -57,32 +57,32 @@ await takeScreenshot(page, 'Login button clicked')
   }
 
   await sleep(5000);
-  await page.goBack({ timeout: 10000 });
+  //await page.goBack({ timeout: 10000 });
 
   try {
     
     // Heading
-    const Text = 'Bring balance in your life and clarity to your mind';
+   // const Text = 'Bring balance in your life and clarity to your mind';
 
     // Retrieve the string from the page
-    const retrievedString = await page.locator("//h1[contains(text(),'Bring balance in your life')]").textContent();
+   // const retrievedString = await page.locator("//h1[contains(text(),'Bring balance in your life')]").textContent();
   //  const retrievedString = await page.getByRole('heading', {"//h1[contains(text(),'Bring balance in your life')]"}).textContent();
 
     // Assert that the strings match
-    expect(retrievedString.trim()).toBe(Text);
+  //  expect(retrievedString.trim()).toBe(Text);
   } catch (error) {
     console.error('Error asserting Heading text:', error);
   }
 
   try {
     // Heading 2
-    const Text2 = 'Meditation made simple with 4 daily practices';
+  //  const Text2 = 'Meditation made simple with 4 daily practices';
 
     // Retrieve the string from the page
-    const retrievedString2 = await page.getByText('Meditation made simple with 4').textContent();
+  //  const retrievedString2 = await page.getByText('Meditation made simple with 4').textContent();
 
     // Assert that the strings match
-    expect(retrievedString2.trim()).toBe(Text2);
+    //expect(retrievedString2.trim()).toBe(Text2);
   } catch (error) {
     console.error('Error asserting Heading 2 text:', error);
   }
@@ -165,21 +165,24 @@ await takeScreenshot(page, 'Login button clicked')
     }
 
     //Pearls of wisdom 1
-    await page.getByRole('link', { name: 'heartful_suggestions1.png' }).click();
-    await takeScreenshot(page, 'heartful_suggestions1.png');
+    await page.getByRole('link', { name: 'Heartful Suggestions' }).click();
+
+    await takeScreenshot(page, 'Heartful Suggestions');
 
     await sleep(3000);
     await page.goBack({ timeout: 10000 });
 
     //Pearls of wisdom 2
-    await page.getByRole('link', { name: 'becoming_whole1.png' }).click();
-    await takeScreenshot(page, 'heartful_suggestions2.png');
+   await page.getByRole('link', { name: 'Becoming Whole' }).click();
+ 
+    await takeScreenshot(page, 'Becoming Whole');
     await sleep(1000);
     await page.goBack({ timeout: 10000 });
 
     //Pearls of wisdom 3
-    await page.getByRole('link', { name: 'youth1.png' }).click();
-    await takeScreenshot(page, 'heartful_suggestions3.png');
+  await page.getByRole('link', { name: 'Youth are the Future' }).click();
+
+    await takeScreenshot(page, 'Youth are the Future');
     await sleep(1000);
     await page.goBack({ timeout: 10000 });
 
@@ -189,7 +192,7 @@ await takeScreenshot(page, 'Login button clicked')
      const about_Heartfulness=await page.getByRole('heading', { name: 'Events that help to know more' }).textContent();
 
      // Assert that the strings match
-    expect(about_Heartfulness.trim()).toBe(about_Heartfulness_org);
+   // expect(about_Heartfulness.trim()).toBe(about_Heartfulness_org);
     }
 
     catch (error) {

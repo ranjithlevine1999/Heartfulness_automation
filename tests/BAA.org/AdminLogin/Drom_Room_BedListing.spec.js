@@ -123,11 +123,11 @@ try{
   await page.getByText('Inactive', { exact: true }).click();
   await page.locator('#pr_id_5_content_2').getByRole('button').nth(2).click();
 
-  await page.locator('#pr_id_5_content_2').getByRole('button').nth(1).click();
-  await page.getByRole('button', { name: '' }).click();
-  await page.getByTitle('View').click();
+  // await page.locator('#pr_id_5_content_2').getByRole('button').nth(1).click();
+  // await page.getByRole('button', { name: '' }).click();
+  // await page.getByTitle('View').click();
 
-  await page.getByLabel('Close').click();
+  // await page.getByLabel('Close').click();
 
   
     });

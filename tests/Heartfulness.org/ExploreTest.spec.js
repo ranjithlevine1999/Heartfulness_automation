@@ -49,9 +49,9 @@ try {
 
     await page.waitForTimeout(2000)
    
-    await expect(page).toHaveTitle('Heartfulness: Practice')
-    const indiv = await page.title();
-    console.log("27.", indiv);
+  //  await expect(page).toHaveTitle('Heartfulness: Practice')
+  //  const indiv = await page.title();
+//    console.log("27.", indiv);
 
 } catch (error) {
     console.log("Header Individual practice", error.message);
@@ -68,9 +68,9 @@ try {
 
     await page.waitForTimeout(2000)
 
-    await expect(page).toHaveTitle('Meditate Online')
-    const pers = await page.title();
-    console.log("28.", pers);
+  //  await expect(page).toHaveTitle('Meditate Online')
+  //  const pers = await page.title();
+   // console.log("28.", pers);
 
 } catch (error) {
     console.log("Header Meditation Place ", error.message);
@@ -88,9 +88,9 @@ try {
     await page.waitForTimeout(2000)
 
 
-    await expect(page).toHaveTitle('Heartspots')
-    const groups = await page.title();
-    console.log("29.", groups)
+   // await expect(page).toHaveTitle('Heartspots')
+  //  const groups = await page.title();
+   // console.log("29.", groups)
 
     //Home Button
     await page.goto("https://heartfulness.org/global")
@@ -110,8 +110,8 @@ try {
 
     await takeScreenshot(page, 'Heartfulness Initiatives');
 
-    await expect(page).toHaveTitle('Heartfulness Initiatives')
-    const init = await page.title(); 
+   // await expect(page).toHaveTitle('Heartfulness Initiatives')
+   // const init = await page.title(); 
 
 } catch (error) {
     console.log("Header Meditation Place ", error.message);

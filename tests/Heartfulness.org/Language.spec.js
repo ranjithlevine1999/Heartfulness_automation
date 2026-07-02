@@ -23,7 +23,7 @@ test('Language',async({page})=>{
         await takeScreenshot(page, 'Sign in with e-mail clicked')
 
 // Email field
-        await page.getByLabel('Email *').fill('karadipai@mailinator.com');
+        await page.getByLabel('Email *').fill('ranjithlevine@gmail.com');
         await takeScreenshot(page, 'Given mail has entered')
 
         //Password field
@@ -45,7 +45,7 @@ test('Language',async({page})=>{
            await page.getByRole('link', { name: 'EXPERIENCE MEDITATION' }).first().click();
 
            await sleep(3000);
-           await page.goBack({ timeout: 10000 });
+        //   await page.goBack({ timeout: 10000 });
            await sleep(3000); 
 
             await page.locator('li:nth-child(2) > button').click();

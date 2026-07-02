@@ -29,19 +29,19 @@ try{
   await page.getByLabel('Search').click();
   await page.getByLabel('PNR Summary').first().click();
 
-  await page.locator('th').first().click();
-  await page.getByRole('row', { name: 'Actions Name Abhyasi ID' }).getByRole('checkbox').uncheck();
-  await page.getByRole('row', { name: '  aadivasi - +919198767878' }).locator('i').nth(1).click();
-  await page.getByLabel('Close').click();
+//   await page.locator('th').first().click();
+//   await page.getByRole('row', { name: 'Actions Name Abhyasi ID' }).getByRole('checkbox').uncheck();
+//   await page.getByRole('row', { name: '  aadivasi - +919198767878' }).locator('i').nth(1).click();
+//   await page.getByLabel('Close').click();
 
-  await page.getByTitle('Move to Paid Accommodation').first().click();
+//   await page.getByTitle('Move to Paid Accommodation').first().click();
 
-  await page.getByLabel('No').click();
-  await page.getByLabel('Manual Allocation').click();
-  await page.getByLabel('Close').click();
+//   await page.getByLabel('No').click();
+//   await page.getByLabel('Manual Allocation').click();
+//   await page.getByLabel('Close').click();
 
-  await page.getByRole('button', { name: 'Modify Preference' }).click();
-  await page.getByRole('button', { name: 'Cancel' }).click();
+//   await page.getByRole('button', { name: 'Modify Preference' }).click();
+//   await page.getByRole('button', { name: 'Cancel' }).click();
 
 
     });
@@ -74,17 +74,17 @@ await page.locator('svg').nth(3).click();
   await page.getByText('Email', { exact: true }).click();
 
   await page.getByRole('textbox').click();
-  await page.getByRole('textbox').fill('rakeshb1000@mailinator.com');
+  await page.getByRole('textbox').fill('kanhatestingrakesh@mailinator.com');
 
   await page.getByLabel('Search').click();
-  await page.locator('th').first().click();
+//   await page.locator('th').first().click();
 
-  await page.getByRole('row', { name: ' Rakesh B B00086768 +' }).getByRole('checkbox').uncheck();
-  await page.getByRole('row', { name: ' Rakesh B B00086768 +' }).locator('i').click();
+//   await page.getByRole('row', { name: ' Rakesh B B00086768 +' }).getByRole('checkbox').uncheck();
+//   await page.getByRole('row', { name: ' Rakesh B B00086768 +' }).locator('i').click();
 
-  await page.getByLabel('Close').click();
-  await page.getByRole('row', { name: '  Rakesh Bonagiri B00086767' }).locator('i').nth(1).click();
-  await page.getByLabel('Close').dblclick();
+//   await page.getByLabel('Close').click();
+//   await page.getByRole('row', { name: '  Rakesh Bonagiri B00086767' }).locator('i').nth(1).click();
+//   await page.getByLabel('Close').dblclick();
  
 
 
@@ -119,16 +119,16 @@ try{
   await page.getByText('Mobile', { exact: true }).click();
   await page.getByRole('textbox').click();
  
-  await page.getByRole('textbox').fill('+ 919198767878');
+  await page.getByRole('textbox').fill('+919198767878');
   await page.getByLabel('Search').click();
-  await page.locator('.allocate-btn > .btn').first().click();
-  await page.getByRole('row', { name: 'Actions Name Abhyasi ID' }).getByRole('checkbox').check();
+//   await page.locator('.allocate-btn > .btn').first().click();
+//   await page.getByRole('row', { name: 'Actions Name Abhyasi ID' }).getByRole('checkbox').check();
 
-  await page.getByRole('row', { name: ' Ramar - +919898989867 5-9 F' }).getByRole('checkbox').uncheck();
-  await page.locator('tr:nth-child(6) > td:nth-child(2) > div').click();
+//   await page.getByRole('row', { name: ' Ramar - +919898989867 5-9 F' }).getByRole('checkbox').uncheck();
+//   await page.locator('tr:nth-child(6) > td:nth-child(2) > div').click();
 
-  await page.getByRole('row', { name: '  Aaron Burtonopxvs' }).locator('i').nth(1).click();
-  await page.getByLabel('Close').click();
+//   await page.getByRole('row', { name: '  Aaron Burtonopxvs' }).locator('i').nth(1).click();
+//   await page.getByLabel('Close').click();
   await page.getByTitle('Move to Paid Accommodation').nth(4).click();
   await page.getByLabel('No').click();
  

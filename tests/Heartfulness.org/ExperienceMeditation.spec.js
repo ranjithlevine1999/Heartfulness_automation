@@ -4,7 +4,7 @@ const { takeScreenshot } = require('../../utils/CommonClass');
 // Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-test('Experience Mediataion',async({page})=>{ 
+test('Experience Mediataion',async({page,context})=>{ 
 try {
     
  
@@ -36,72 +36,80 @@ await takeScreenshot(page, 'Login button clicked')
 
 
 
-    //EXPERIENCE MEDITATION
-    await page.locator("(//a[text()='EXPERIENCE MEDITATION'])[1]").click()
-    await page.waitForTimeout(3000)
+    // // //EXPERIENCE MEDITATION
+    // await page.locator("(//a[text()='EXPERIENCE MEDITATION'])[1]").click()
+    // await page.waitForTimeout(3000)
+
+    const [newPage] = await Promise.all([
+  page.waitForEvent('popup'),
+  page.locator("(//a[text()='EXPERIENCE MEDITATION'])[1]").click(),
+
+]);
+
      
+await newPage.waitForLoadState('domcontentloaded');
+console.log('New tab opened:', await newPage.title());
+
     // const MEDITATION01= await page.title();
     console.log('11.Heartfulness: Practice');
-   
-      //Play Audio 1
-    await page.locator('#row_relaxation').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-    await page.getByLabel('Close').click();
-   
-    // //Play Video 1
-    await page.locator('#row_relaxation section div').nth(3).click();
-    await page.frameLocator('iframe[title="Guided Relaxation Heartfulness \\| Guided Meditation \\| Relaxation Heartfulness"]').locator('video').click();
-   
-    await page.waitForTimeout(1000)
 
-    //Play Video 2
-    await page.locator('#row_meditation section div').nth(3).click();
-    await page.frameLocator('iframe[title="Heartfulness Meditation Technique \\| Free Guided Meditation \\| Heartfulness"]').locator('video').click();
-   
-    await page.waitForTimeout(1000)
+ 
 
-    //Play Audio 2
-    await page.locator('#row_meditation').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-    await page.getByLabel('Close').click();
+    // Play Audio 1 - Relaxation
+await newPage.locator('#row_relaxation').getByRole('button', { name: 'LISTEN AUDIO' }).click();
+await newPage.getByLabel('Close').click();
+console.log(' Relaxation Audio played and closed');
 
-    //Play audio 3
-    await page.locator('#row_cleaning').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-    await page.getByLabel('Close').click();
-   
-    await page.waitForTimeout(1000)
+//  Play Video 1 - Relaxation
+await newPage.locator('#row_relaxation section div').nth(3).click();
+console.log(' Relaxation Video played');
 
-    ////Play Video 3
-    await page.locator('#row_cleaning section div').nth(3).click();
-    await page.frameLocator('iframe[title="How to Cleanse or clean Your Mind and Body\\? - A Guided Heartfulness Cleaning Technique"]').locator('video').click();
-   
-    await page.waitForTimeout(1000)
+//  Play Video 2 - Meditation
+await newPage.locator('#row_meditation section div').nth(3).click();
+console.log(' Meditation Video played');
 
-    //Play Video 4
-    await page.locator('#row_inner-connect section div').nth(3).click();
-    await page.frameLocator('iframe[title="Connecting To Source – A 3-Minute Guided Meditation \\| Prayer For Healing \\| Heartfulness"]').locator('video').click();
-  
+//  Play Audio 2 - Meditation
+await newPage.locator('#row_meditation').getByRole('button', { name: 'LISTEN AUDIO' }).click();
+await newPage.getByLabel('Close').click();
+console.log(' Meditation Audio played and closed');
+
+// Play Audio 3 - Cleaning
+await newPage.locator('#row_cleaning').getByRole('button', { name: 'LISTEN AUDIO' }).click();
+await newPage.getByLabel('Close').click();
+console.log(' Cleaning Audio played and closed');
+
+//  Play Video 3 - Cleaning
+await newPage.locator('#row_cleaning section div').nth(3).click();
+console.log(' Cleaning Video played');
+
+// Play Video 4 - Inner Connect
+await newPage.locator('#row_inner-connect section div').nth(3).click();
+console.log(' Inner Connect Video played');
+
+// Play Audio 4 - Inner Connect
+await newPage.locator('#row_inner-connect').getByRole('button', { name: 'LISTEN AUDIO' }).click();
+await newPage.getByLabel('Close').click();
+console.log(' Inner Connect Audio played and closed');
+
+//  Play Audio 5 - Explore
+await newPage.locator('#row_explore').getByRole('button', { name: 'LISTEN AUDIO' }).click();
+await newPage.getByLabel('Close').click();
+console.log(' Explore Audio played and closed');
+
+//  Play Video 5 - Explore
+await newPage.locator('#row_explore section div').nth(3).click();
+console.log(' Explore Video played');
+
+//  Extra Listen Audio (Final)
+await newPage.getByRole('button', { name: 'Listen Audio', exact: true }).click();
+await newPage.getByLabel('Close').click();
+console.log(' Final Listen Audio played and closed');
+
    
-    ////Play audio 4
-    await page.waitForTimeout(1000)
-    await page.locator('#row_inner-connect').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-    await page.getByLabel('Close').click();
-  
-    
-    ////Play Video 5
-    await page.waitForTimeout(1000)
-    await page.locator('#row_explore section div').nth(3).click();
-    await page.frameLocator('#widget10').locator('video').click();
-   
-    ////Play audio 5
-    await page.waitForTimeout(1000)
-    await page.locator('#row_explore').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-    await page.getByLabel('Close').click();
 
 } catch (error) {
     console.log("Error with Practice page", error.message);
 }
-
-
-
 
 
 })

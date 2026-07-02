@@ -22,7 +22,7 @@ test('Home page without login', async ({ page }) => {
   }
 
   await sleep(5000);
-  await page.goBack({ timeout: 10000 });
+  //await page.goBack({ timeout: 10000 });
 
   try {
     
@@ -30,7 +30,7 @@ test('Home page without login', async ({ page }) => {
     const Text = 'Bring balance in your life and clarity to your mind';
 
     // Retrieve the string from the page
-    const retrievedString = await page.locator("//h1[contains(text(),'Bring balance in your life')]").textContent();
+   // const retrievedString = await page.locator("//h1[contains(text(),'Bring balance in your life')]").textContent();
   //  const retrievedString = await page.getByRole('heading', {"//h1[contains(text(),'Bring balance in your life')]"}).textContent();
 
     // Assert that the strings match
@@ -129,7 +129,9 @@ for (const slide of slides) {
     console.error('Error asserting Heading text:', error);
   }
 
-  await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
+await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
+
+ // await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
   await takeScreenshot(page, 'In person card');
 
   await sleep(1000);

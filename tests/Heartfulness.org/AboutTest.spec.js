@@ -1,5 +1,5 @@
 const{test,expect}=require('@playwright/test')
-const { takeScreenshot  } = require('../../utils/CommonClass');
+const { takeScreenshot } = require('../../utils/CommonClass');
 
 // Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -119,12 +119,15 @@ test('About',async({page})=>{
         try {
     
             
-            await page.getByRole('menuitem', { name: 'ABOUT' }).click();
+            // await page.getByRole('menuitem', { name: 'ABOUT' }).click();
 
-            await sleep(2000);
+            // await sleep(2000);
+
+             await page.getByRole('menuitem', { name: 'ABOUT' }).click();
+  
 
             //await page.getByRole('link', { name: 'Connect with us' }).click();
-            await page.getByRole('menuitem', { name: 'Connect with us' }).click();
+            await page.getByRole('link', { name: 'Connect with us' }).click();
 
 
             await takeScreenshot(page, 'Connect with us')

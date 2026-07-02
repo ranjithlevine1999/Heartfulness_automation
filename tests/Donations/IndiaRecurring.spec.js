@@ -9,66 +9,68 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 //Donation for SMSF India - Every Drop Counts
 
 test('India recurring-->[Donation for SMSF India - Every Drop Counts]', async ({ page }) => {
-  await page.goto('https://donations.heartfulness.org/?_gl=1*loaar4*_ga*MTk5MzE4NzYzLjE3MzQ1MDIxODQ.*_ga_PHDYQ7YDTM*czE3NDg4NDQ2NDgkbzEwMCRnMCR0MTc0ODg0NDY0OCRqNjAkbDAkaDA.');
-  await page.getByText('Recurring Donations').click();
+  await page.goto('https://donations.heartfulness.org/');
 
+   await page.getByText('Recurring Donations').click();
   await page.getByRole('combobox').selectOption('india');
 
   await page.getByRole('button', { name: 'Donation for SMSF India -' }).click();
+  await page.getByRole('button', { name: 'Sign In' }).click();
 
-  await page.getByRole('button', { name: 'Donate - ₹1500 Monthly' }).click();
-  await page.getByPlaceholder('Name').click();
+  await page.getByRole('link', { name: 'Signin with Email' }).click();
+  await page.getByLabel('Email *').click();
+  await page.getByLabel('Email *').fill('ranjithlevine@gmail.com');
+  await page.getByLabel('Password', { exact: true }).click();
 
-  await page.locator('div').filter({ hasText: /^Name$/ }).getByRole('textbox').fill('Test');
-  await page.getByPlaceholder('Email Id').click();
-  await page.locator('input[type="email"]').fill('Test@gmail.com');
-  await page.getByPlaceholder('1 (702) 123-').click();
+  await page.getByLabel('Password', { exact: true }).fill('Test@123');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByTestId('donate-now-button').click();
 
-  await page.getByPlaceholder('1 (702) 123-').fill('+91 89548-58689');
-  await page.getByPlaceholder('City').click();
+  await page.getByTestId('account-type-savings').check();
 
-  await page.getByText('Hyderabad').click();
+  await page.getByTestId('donor-address').click();
 
-  await page.getByPlaceholder('Door No, Street Address').dblclick();
-  await page.locator('div').filter({ hasText: /^Door No, Street Address$/ }).getByRole('textbox').fill('5');
-  await page.getByPlaceholder('Pincode').click();
+  await page.getByTestId('donor-address').fill('4th st');
+  await page.getByTestId('donor-postal-code').click();
 
-  await page.locator('div').filter({ hasText: /^Pincode$/ }).getByRole('spinbutton').fill('543');
-  await page.getByRole('button', { name: 'Proceed' }).click();
+  await page.getByTestId('donor-postal-code').fill('688896');
 
-  await page.getByRole('button', { name: 'Proceed' }).click();
+  await page.getByTestId('proceed-to-pay-button').click();
+  await page.getByTestId('proceed-to-pay-button').click();
+  
 });
 
 //Donation for HFI
 
 test('India recurring-->[Donation for HFI]', async ({ page }) => {
-  await page.goto('https://donations.heartfulness.org/?_gl=1*loaar4*_ga*MTk5MzE4NzYzLjE3MzQ1MDIxODQ.*_ga_PHDYQ7YDTM*czE3NDg4NDQ2NDgkbzEwMCRnMCR0MTc0ODg0NDY0OCRqNjAkbDAkaDA.');
-  await page.getByText('Recurring Donations').click();
+ await page.goto('https://donations.heartfulness.org/');  
+
+   await page.getByText('Recurring Donations').click();
   await page.getByRole('combobox').selectOption('india');
-
   await page.getByRole('button', { name: 'Donation for HFI' }).click();
+  await page.getByTestId('donate-now-button').click();
+  await page.getByRole('button', { name: 'Sign In' }).click();
 
-  await page.getByRole('button', { name: 'Recurring donation' }).click();
+  await page.getByRole('link', { name: 'Signin with Email' }).click();
 
-  await page.getByPlaceholder('0', { exact: true }).fill('55');
-  await page.getByPlaceholder('Name').dblclick();
-  await page.locator('div').filter({ hasText: /^Name$/ }).getByRole('textbox').fill('Test');
-  await page.getByPlaceholder('Email Id').click();
+  await page.getByLabel('Email *').click();
+  await page.getByLabel('Email *').fill('ranjithlevine@gmail.com');
+  await page.getByLabel('Password', { exact: true }).click();
 
-  await page.locator('input[type="email"]').fill('Test@gmail.com');
-  await page.getByPlaceholder('1 (702) 123-').click();
+  await page.getByLabel('Password', { exact: true }).fill('Test@123');
+  await page.getByRole('button', { name: 'Sign In' }).click();
 
-  await page.getByPlaceholder('1 (702) 123-').fill('+91 98471-651564');
-  await page.getByPlaceholder('City').click();
+  await page.getByTestId('donate-now-button').click();
+  
+  await page.getByTestId('account-type-current').check();
 
-  await page.getByRole('option', { name: 'Bengaluru Karnataka, India' }).click();
-  await page.getByPlaceholder('Door No, Street Address').click();
+  await page.getByTestId('donor-postal-code').click();
 
-  await page.locator('div').filter({ hasText: /^Door No, Street Address$/ }).getByRole('textbox').fill('489');
-  await page.getByPlaceholder('Pincode').click();
+  await page.getByTestId('donor-postal-code').fill('688859');
 
-  await page.locator('div').filter({ hasText: /^Pincode$/ }).getByRole('spinbutton').fill('643');
+  await page.getByTestId('donor-address').click();
+  await page.getByTestId('donor-address').fill('56th st');
 
-  await page.getByRole('button', { name: 'Proceed' }).click();
-  await page.getByRole('button', { name: 'Proceed' }).click();
+  await page.getByTestId('proceed-to-pay-button').click();
+  await page.getByTestId('proceed-to-pay-button').click();
 });

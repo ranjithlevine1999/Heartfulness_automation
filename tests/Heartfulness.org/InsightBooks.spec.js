@@ -40,8 +40,18 @@ test('Insights', async ({ page }) => {
     }
 
     try {
-        await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
-        await page.getByRole('menuitem', { name: 'Books New' }).click();
+
+        await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click(); 
+        
+        //await page.getByRole('menuitem', { name: 'Books New' }).click();
+      //   await page.hover('role=menuitem[name="INSIGHTS New"]');
+   // await sleep(500);
+
+    // Now click on Books New (submenu)
+    await page.hover('role=menuitem[name="Books New"]');
+    await sleep(500);
+       
+
 
         const bookLinks = [
             'The Power of Paradox New',
@@ -53,14 +63,19 @@ test('Insights', async ({ page }) => {
 
         for (const book of bookLinks) {
             try {
+              
                 const pagePromise = page.waitForEvent('popup');
                 await page.getByRole('link', { name: book }).click();
                 const newPage = await pagePromise;
 
                 await sleep(3000);
                 await newPage.close();
-                await sleep(3000);
-            } catch (popupError) {
+                await sleep(3000); 
+              
+       
+    }
+       
+catch (popupError) {
                 console.log(`Error handling popup for ${book}:`, popupError.message);
             }
         }
