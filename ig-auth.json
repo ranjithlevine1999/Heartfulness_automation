@@ -1,0 +1,159 @@
+{
+  "cookies": [
+    {
+      "name": "_GRECAPTCHA",
+      "value": "09AKhCRwi4b0hITatxI5qxOoyA72ILbOgSPjXoIinw_nLTg-15cS3cuJZmfJtQSTRcytCp76_vXkgw2TRMBvxQWeI",
+      "domain": "www.google.com",
+      "path": "/recaptcha",
+      "expires": 1799607113.044538,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "datr",
+      "value": "MIVWamELrKzk15UtSTMzzcdC",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1818615088.797417,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ig_did",
+      "value": "90922892-3B28-4CDD-A36D-17E4F7024BC5",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1815591088.797485,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "mid",
+      "value": "alaFMAALAAG_9RpAy0UBHLNDVXll",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1818615088.797694,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wd",
+      "value": "1280x720",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1784659910,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "csrftoken",
+      "value": "G69ThTyN8m6F6AdWZWz7lNhNcHaxropB",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1818615144.322278,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ds_user_id",
+      "value": "76996416824",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1791831144.322367,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "sessionid",
+      "value": "76996416824%3A0tVM7h4pWWf4Hx%3A10%3AAYhtdcvlGmEh_EgxTuvpZcEgOk3HrBMxJl5jsQxHdg",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1815591144.322386,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "rur",
+      "value": "HIL%2C17841476824744552%2C1785264744%3A01ff3ec62a65403b9925026ab7acf2728354b1512467ddd790d6795870dca564f757ed51",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.instagram.com",
+      "localStorage": [
+        {
+          "name": "chatd-deviceid",
+          "value": "98791f5f-75e0-4b26-9714-6fff4ab9da23"
+        },
+        {
+          "name": "hb_timestamp",
+          "value": "1784055089852"
+        },
+        {
+          "name": "IGSession",
+          "value": "egdfyq:1784056945149"
+        },
+        {
+          "name": "pigeon_state",
+          "value": "{\"lastDeviceInfoTime\":0}"
+        },
+        {
+          "name": "signal_flush_timestamp",
+          "value": "1784055089876"
+        },
+        {
+          "name": "Session",
+          "value": "g0c0yj:1784055180149"
+        },
+        {
+          "name": "ig_boost_on_web_campaign_upsell_shown",
+          "value": "false"
+        },
+        {
+          "name": "banzai:last_storage_flush",
+          "value": "1784055090483.0999"
+        },
+        {
+          "name": "caa_feta_onetap_users_migrated",
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "origin": "https://www.fbsbx.com",
+      "localStorage": [
+        {
+          "name": "_grecaptcha",
+          "value": "09AKhCRwhvBMlB5ccx3bPUkcH7b6zw47qLEhU7732wbFV89mTvoraby8GEqKgUMWi8tTAWyr3WcIK5y08wiaBNNNNsta6VCCXkFdYehJpP8RcxWCIr4v2cCobhckktmYsE"
+        }
+      ]
+    },
+    {
+      "origin": "https://www.google.com",
+      "localStorage": [
+        {
+          "name": "rc::a",
+          "value": "NXc5c24yMXI4dmRzMA=="
+        },
+        {
+          "name": "rc::f",
+          "value": "0aANb0gxIl-b2v4l4nOexmj00v0GcAP82rwgaJtrQJGWp5H0BYUDuCx8oUwymFkdII5pq885s"
+        }
+      ]
+    }
+  ]
+}

@@ -1,184 +1,193 @@
 const { test, expect } = require('@playwright/test');
 const { takeScreenshot } = require('../../utils/CommonClass');
-const { waitFor } = require('wd/lib/commands');
 
-// Utility function for sleep (kept in case you use it elsewhere)
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// ---------- Test data factory (no external deps) ----------
-function buildTestData() {
-  const runId = Date.now().toString().slice(-6);
-  const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-  const randDigits = (n) => Array.from({ length: n }, () => rand(0, 9)).join('');
-  const pick = (arr) => arr[rand(0, arr.length - 1)];
-  const randomLetters = (n) => Array.from({ length: n }, () => String.fromCharCode(65 + rand(0, 25))).join('');
+// Utility to generate random uppercase letters for unique place names per run
+const randomLetters = (n) => Array.from({ length: n }, () =>
+    String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
 
-  // Random uppercase letter A-Z, changes every run
-  const randomLetter = String.fromCharCode(65 + rand(0, 25));
+const HOME_URL = 'https://meditationplace.staging.heartfulness.org/home';
 
-  return {
-    user: {
-      email: process.env.MP_EMAIL || 'preceptor.10@mailinator.com',
-      password: process.env.MP_PASSWORD || 'password',
-    },
-    place: {
-     // name: `${randomLetter}testing`, 
-      name: `${randomLetters(3)}testing`,  // e.g. Ktesting_837492
-      citySearch: 'Chenn',
-      cityOption: 'CHENNAI (Chengalpattu)',
-      houseNo: String(rand(1, 999)),
-      street: `${rand(1, 99)}th st`,
-      addressCitySearch: 'chennai',
-      postalCode: '600068',
-      ownership: 'Rented',
-      connectivity: 'C-connect',
-      placeType: 'Residential',
-      phone: `+91 ${randDigits(5)}-${randDigits(5)}`,
-      amenities: pick(['food', 'transport', 'accessibility']),
-      directions: `Test directions ${runId}`,
-      mapSearch: 'chennai',
-      mapOption: 'Tamil Nadu, India',
-    },
-  };
+const USERNAME = 'preceptor.10@mailinator.com';
+const PASSWORD = 'password';
+
+const PLACE = {
+    name: `Draft${randomLetters(3)}`,
+    citySearch: 'chennai',
+    cityOption: 'CHENNAI (Chennai)',
+    ashramType: 'Ashram',
+    schedule: 'Mid-week / Wednesday only',
+    placeType: 'Residential',
+    ownership: 'Rented',
+    mapSearch: 'chennai',
+    mapOption: 'Tamil Nadu, India',
+    amenities: 'food',
+    directions: 'Test',
+};
+
+
+// Grant geolocation permission at the context level to prevent popup
+test.use({
+    permissions: ['geolocation'],
+    geolocation: { latitude: 13.0827, longitude: 80.2707 }, // Chennai coordinates
+});
+
+
+// Keycloak-safe login helper
+async function loginToMeditationPlace(page) {
+    await page.goto(HOME_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(3000);
+
+    const signinWithEmail = page.getByRole('link', { name: 'Signin with Email' });
+    await signinWithEmail.waitFor({ state: 'visible', timeout: 15000 });
+    await signinWithEmail.click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2000);
+
+    await page.locator('#username').waitFor({ state: 'attached', timeout: 15000 });
+    await page.locator('#password').waitFor({ state: 'attached', timeout: 5000 });
+
+    await page.evaluate(({ user, pass }) => {
+        const setValue = (selector, value) => {
+            const input = document.querySelector(selector);
+            if (!input) throw new Error(`Element ${selector} not found`);
+
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype, 'value'
+            ).set;
+            nativeInputValueSetter.call(input, value);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        setValue('#username', user);
+        setValue('#password', pass);
+
+        const form = document.querySelector('#kc-form-login')
+            || document.querySelector('form#kc-form')
+            || document.querySelector('form');
+        if (form) {
+            form.submit();
+        } else {
+            throw new Error('Login form not found');
+        }
+    }, { user: USERNAME, pass: PASSWORD });
+
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(3000);
 }
 
-// ---------- Robust react-select helper ----------
-// Opens a react-select dropdown, optionally types to filter, waits for the menu,
-// and selects via keyboard (ArrowDown + Enter). Retries up to 3 times.
-async function selectFromDropdown(page, controlLocator, optionText = '') {
-  for (let attempt = 1; attempt <= 3; attempt++) {
+
+test('Meditation Place -> Create and Save as Draft', async ({ page }) => {
+    test.setTimeout(180000);
+
+    console.log('Creating meditation place (Draft):', PLACE.name);
+
     try {
-      await controlLocator.waitFor({ state: 'visible', timeout: 5000 });
-      await controlLocator.click();
+        // --- Login ---
+        await loginToMeditationPlace(page);
+        await takeScreenshot(page, 'After_Login');
 
-      if (optionText) {
-        await page.keyboard.type(optionText, { delay: 80 });
-      }
+        // --- Click on the KOILAKUNTLA - CENTER card ---
+        const centerCard = page.getByText('KOILAKUNTLA - CENTER');
+        await centerCard.waitFor({ state: 'visible', timeout: 15000 });
+        await centerCard.click();
+        await sleep(1500);
 
-      // Wait for the dropdown menu to render
-      const menu = page.locator('[class*="-menu"], [class*="-option"]').first();
-      await menu.waitFor({ state: 'visible', timeout: 4000 });
+        // --- Click Create Meditation Place ---
+        await page.getByLabel('Create Meditation Place').click();
+        await sleep(1500);
 
-      // Use keyboard navigation — most reliable for react-select
-      await page.keyboard.press('ArrowDown');
-      await page.keyboard.press('Enter');
-      return; // success
-    } catch (err) {
-      console.log(`Dropdown attempt ${attempt} failed: ${err.message}`);
-      await page.keyboard.press('Escape').catch(() => {});
-      await page.waitForTimeout(500);
+        // --- Fill place name (with random 3-letter suffix) ---
+        await page.getByPlaceholder('Enter a Place').fill(PLACE.name);
+        await sleep(500);
+
+        // --- City selection (type character by character) ---
+        await page.locator('#rc_select_0').click();
+        await sleep(300);
+        await page.locator('#rc_select_0').pressSequentially(PLACE.citySearch, { delay: 150 });
+        await sleep(1000);
+        await page.getByText(PLACE.cityOption).click();
+        await sleep(500);
+
+        // --- Proceed to Address ---
+        await page.getByRole('button', { name: 'Proceed' }).click();
+        await sleep(1500);
+
+        // --- Ashram type dropdown ---
+        await page.locator('.hfn_select_field > .css-13cymwt-control > .css-hlgwow > .css-19bb58m').first().click();
+        await sleep(500);
+        await page.getByText(PLACE.ashramType, { exact: true }).click();
+        await sleep(500);
+
+        // --- Schedule dropdown ---
+        await page.locator('.hfn_select_field > .css-13cymwt-control > .css-hlgwow > .css-19bb58m').first().click();
+        await sleep(500);
+        await page.getByText(PLACE.schedule, { exact: true }).click();
+        await sleep(500);
+
+        // --- Place type dropdown (15th child) ---
+        await page.locator('div:nth-child(15) > .hfn_input > .hfn_select_field > .css-13cymwt-control > .css-hlgwow > .css-19bb58m').click();
+        await sleep(500);
+        await page.getByText(PLACE.placeType, { exact: true }).click();
+        await sleep(500);
+
+        // --- Ownership dropdown (16th child) ---
+        await page.locator('div:nth-child(16) > .hfn_input > .hfn_select_field > .css-13cymwt-control > .css-hlgwow > .css-19bb58m').click();
+        await sleep(500);
+        await page.getByText(PLACE.ownership, { exact: true }).click();
+        await sleep(500);
+
+        // --- Continue to Map ---
+        await page.getByLabel('Continue').click();
+        await sleep(1500);
+
+        // --- Map location search ---
+        await page.getByPlaceholder('Search your location').fill(PLACE.mapSearch);
+        await sleep(1500);
+        await page.getByText(PLACE.mapOption).first().click();
+        await sleep(500);
+
+        // --- Continue to Contact Info ---
+        await page.getByLabel('Continue').click();
+        await sleep(1500);
+
+        // --- Fill amenities and directions ---
+        await page.getByPlaceholder('Food, Transport, Accessibility').fill(PLACE.amenities);
+        await sleep(300);
+        await page.getByPlaceholder('Direction To Reach').fill(PLACE.directions);
+        await sleep(300);
+
+        // --- Continue to Timings ---
+        await page.getByLabel('Continue').click();
+        await sleep(1500);
+
+        // --- Add Time and Proceed to Review ---
+        await page.getByLabel('Add Time').click();
+        await sleep(1000);
+        await page.getByLabel('Proceed to Review').click();
+        await sleep(2000);
+
+        await takeScreenshot(page, 'Review_Page');
+
+        // --- Save as Draft (instead of Send for Approval) ---
+        await page.getByRole('button', { name: 'Save as Draft' }).click();
+        await sleep(3000);
+
+        await takeScreenshot(page, 'Saved_As_Draft');
+
+        console.log('✓ Meditation place saved as draft:', PLACE.name);
+    } catch (error) {
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'SaveDraft_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
     }
-  }
-
-  throw new Error(`Dropdown failed to open after 3 attempts (search: "${optionText}")`);
-}
-
-// Allow more time — this flow has many steps
-test.setTimeout(120_000);
-
-test('Save to Draft', async ({ page }) => {
-  const data = buildTestData();
-
-  try {
-    // ---------- Login ----------
-    await page.goto('https://meditationplace.heartfulness.org');
-    await page.getByRole('link', { name: 'Signin with Email' }).click();
-    await page.getByLabel('Email *').fill(data.user.email);
-    await page.getByLabel('Password', { exact: true }).fill(data.user.password);
-    await page.getByRole('button', { name: 'Sign In' }).click();
-
-    // ---------- Create Meditation Place ----------
-    await page.getByLabel('Create Meditation Place').click();
-    await page.getByPlaceholder('Enter a Place').fill(data.place.name);
-
-    // First city dropdown (rc_select - antd-style)
-    await page.locator('#rc_select_0').fill(data.place.citySearch);
-    await page.getByTitle(data.place.cityOption).click();
-    await page.getByRole('button', { name: 'Proceed' }).click();
-
-    // ---------- Address ----------
-    await page.getByLabel('House/Flat. No*').fill(data.place.houseNo);
-    await page.getByLabel('Street*').fill(data.place.street);
-
-    // City react-select (address section) — uses robust helper
-    await selectFromDropdown(
-      page,
-      page.locator('.input_city .css-13cymwt-control'),
-      data.place.addressCitySearch
-    );
-
-    await page.getByLabel('Postal/Zip Code*').fill(data.place.postalCode);
-
-    // ---------- Property dropdowns ----------
-    // Ownership
-    await selectFromDropdown(
-      page,
-      page.locator('.hfn_select_field .css-13cymwt-control').first(),
-      data.place.ownership
-    );
-
-    // Connectivity
-    await selectFromDropdown(
-      page,
-      page.locator('.hfn_select_field .css-13cymwt-control').first(),
-      data.place.connectivity
-    );
-
-    // Place type (residential/commercial)
-    await selectFromDropdown(
-      page,
-      page.locator('div:nth-child(15) > .hfn_input > .hfn_select_field > .css-13cymwt-control'),
-      data.place.placeType
-    );
-
-    // Next dropdown — pick first option (no specific text filter)
-    await selectFromDropdown(
-      page,
-      page.locator('div:nth-child(16) > .hfn_input > .hfn_select_field > .css-13cymwt-control')
-    );
-
-    // ---------- Visibility toggles ----------
-    await page.locator('#location_public_display svg').click();
-    await page.locator('#location_display_on_google_places div').nth(1).click();
-    await page.locator('#location_public_display div').nth(1).click();
-    await page.locator('#location_display_on_google_places svg').click();
-    await page.getByLabel('Continue').click();
-
-    // ---------- Map location ----------
-    await page.getByPlaceholder('Search your location').fill(data.place.mapSearch);
-    await page.getByText(data.place.mapOption).first().click();
-    await page.getByLabel('Continue').click();
-
-    // ---------- Contact & extras ----------
-    await page.getByPlaceholder('Enter number with country code').fill(data.place.phone);
-    await page.getByPlaceholder('Food, Transport, Accessibility').fill(data.place.amenities);
-    await page.getByPlaceholder('Direction To Reach').fill(data.place.directions);
-    await page.getByLabel('Continue').click();
-
-    // ---------- Final steps ----------
-    await page.getByLabel('Add Time').click();
-    await page.getByLabel('Proceed to Review').click();
-   await page.getByLabel('Save as Draft').click();
-   await sleep(5000);
-
-
-    // Optional: assert success
-    // await expect(page.getByText(/sent for approval|submitted successfully/i)).toBeVisible();
-
-  } catch (error) {
-    console.error('Test failed in Send for Approval flow:', error);
-
-    // Only screenshot if the page is still open
-    if (!page.isClosed()) {
-      try {
-        await takeScreenshot(page, `SendForApproval_Error_${data.place.name}`);
-      } catch (screenshotError) {
-        console.error('Could not take screenshot:', screenshotError.message);
-      }
-    } else {
-      console.error('Page was already closed — no screenshot taken.');
-    }
-
-    throw error;
-  }
 });

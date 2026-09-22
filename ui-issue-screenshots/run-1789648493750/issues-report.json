@@ -1,0 +1,9 @@
+[
+  {
+    "type": "LARGE_BLANK_REGION",
+    "page": "SearchResults",
+    "severity": "MEDIUM",
+    "details": "RIGHT blank region: 700×600px (420k sq px) at (x=1200, y=200)",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648493750/SearchResults_blank_RIGHT_1_1789648507171.png"
+  }
+]

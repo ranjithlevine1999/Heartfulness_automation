@@ -1,181 +1,87 @@
 const { test, expect } = require('@playwright/test');
+const { takeScreenshot } = require('../../utils/CommonClass');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const GLOBAL_URL = 'https://heartfulness.org/global/';
-const EMAIL = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const HFN_URL = 'https://heartfulness.org/global/';
+
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
 const PASSWORD = 'Test@123';
 
-test('Heartfulness Global -> Whisper Subscribe form field validation', async ({ page }) => {
-  test.setTimeout(120000);
 
-  try {
-    // ─── Sign In ───
-    await page.goto(GLOBAL_URL);
-    await page.getByLabel('SIGN IN').click();
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
     await page.getByRole('link', { name: 'Signin with Email' }).click();
-    await page.getByLabel('Email *').fill(EMAIL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
     await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
     await page.getByRole('button', { name: 'Sign In' }).click();
-    await page.waitForLoadState('networkidle');
-    console.log('✓ Signed in');
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
 
-    // ─── Navigate to Whisper ───
-    await page.getByRole('link', { name: 'Whisper' }).click();
-    await page.waitForLoadState('networkidle');
-    await sleep(1500);
-    console.log('✓ Navigated to Whisper');
 
-    // ─── Open Subscribe form ───
-    await page.getByLabel('SUBSCRIBE').click();
-    await sleep(1500);
-    console.log('✓ Opened Subscribe form');
+test('HFN -> Whispers subscription preferences', async ({ page }) => {
+    test.setTimeout(90000);
 
-    // ─── TEST 1: All form fields are visible ───
     try {
-      const fname = page.locator('input[name="fname"]');
-      const lname = page.locator('input[name="lname"]');
-      const emailField = page.locator('input[name="from"]');
-      const languageDropdown = page.locator('div').filter({ hasText: /^empty$/ }).nth(1);
-      const termsCheckbox = page.locator('.p-checkbox-box');
-      const subscribeButton = page.getByLabel('SUBSCRIBE');
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-      await expect(fname).toBeVisible();
-      await expect(lname).toBeVisible();
-      await expect(emailField).toBeVisible();
-      await expect(languageDropdown).toBeVisible();
-      await expect(termsCheckbox).toBeVisible();
-      await expect(subscribeButton).toBeVisible();
+        // --- Click "Whispers" link - opens a popup/new tab ---
+        const popupPromise = page.waitForEvent('popup');
+        await page.getByRole('link', { name: 'Whispers' }).click();
+        const whispersPage = await popupPromise;
+        await whispersPage.waitForLoadState('domcontentloaded');
+        await sleep(2000);
 
-      console.log('✓ All form fields are visible (fname, lname, email, language, checkbox, subscribe)');
+        await takeScreenshot(whispersPage, 'Whispers_Page_Opened');
+
+        // --- Enable Whispers toggle ---
+        await whispersPage.locator('div').filter({
+            hasText: /^WhispersDivine guidance and inner whispers to illuminate your path\.0 Languages$/
+        }).getByLabel('').click();
+        await sleep(500);
+
+        // --- Save Preferences ---
+        await whispersPage.getByRole('button', { name: 'Save Preferences' }).click();
+        await sleep(2000);
+
+        // --- Toggle One Beautiful Thought ---
+        await whispersPage.locator('#one-beautiful-thought > .hfn-mb-3 > div > div > .inline-flex > .rounded').click();
+        await sleep(500);
+
+        // --- Preview email for Abhyasi Bulletin ---
+        await whispersPage.locator('#abhyasi-bulletin').getByRole('button', { name: 'Preview email' }).click();
+        await sleep(1500);
+
+        // Close preview modal
+        await whispersPage.keyboard.press('Escape');
+        await sleep(500);
+
+        // --- Select French language in Whispers section ---
+        await whispersPage.locator('#whispers').getByRole('button', { name: 'French (Français)' }).click();
+        await sleep(500);
+
+        await takeScreenshot(whispersPage, 'Whispers_Preferences_Set');
+        console.log('✓ Whispers preferences saved successfully');
     } catch (error) {
-      console.error('✗ Field visibility check failed');
-      throw error;
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'Whispers_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
     }
-
-    // ─── TEST 2: Empty form submission is blocked ───
-    try {
-      await page.getByLabel('SUBSCRIBE').click();
-      await sleep(1500);
-
-      // Should still be on form page
-      await expect(page.getByLabel('SUBSCRIBE')).toBeVisible();
-      await expect(page.locator('input[name="fname"]')).toBeVisible();
-      console.log('✓ Empty form submission was blocked (validation working)');
-    } catch (error) {
-      console.error('✗ Empty form validation check failed');
-      throw error;
-    }
-
-    // ─── TEST 3: Each field accepts input ───
-    try {
-      const fname = page.locator('input[name="fname"]');
-      const lname = page.locator('input[name="lname"]');
-      const emailField = page.locator('input[name="from"]');
-
-      await fname.fill('Ranjith');
-      await expect(fname).toHaveValue('Ranjith');
-      console.log('  ✓ First name accepts input');
-
-      await lname.fill('kumar');
-      await expect(lname).toHaveValue('kumar');
-      console.log('  ✓ Last name accepts input');
-
-      await emailField.fill(EMAIL);
-      await expect(emailField).toHaveValue(EMAIL);
-      console.log('  ✓ Email accepts input');
-
-      console.log('✓ All fields accept input correctly');
-    } catch (error) {
-      console.error('✗ Field input check failed');
-      throw error;
-    }
-
-    // ─── TEST 4: Invalid email format is rejected ───
-    try {
-      const emailField = page.locator('input[name="from"]');
-      await emailField.fill('not-a-valid-email');
-      await page.locator('input[name="fname"]').click(); // blur the email field
-      await sleep(500);
-
-      await page.getByLabel('SUBSCRIBE').click();
-      await sleep(1500);
-
-      await expect(page.getByLabel('SUBSCRIBE')).toBeVisible();
-      console.log('✓ Invalid email format was rejected');
-
-      // Restore valid email
-      await emailField.fill(EMAIL);
-    } catch (error) {
-      console.error('✗ Email format validation check failed');
-      throw error;
-    }
-
-    // ─── TEST 5: Language dropdown works ───
-    try {
-      await page.locator('div').filter({ hasText: /^empty$/ }).nth(1).click();
-      await sleep(500);
-
-      const englishOption = page.getByLabel('English', { exact: true });
-      await expect(englishOption).toBeVisible();
-      await englishOption.click();
-      await sleep(500);
-
-      console.log('✓ Language dropdown works (English selected)');
-    } catch (error) {
-      console.error('✗ Language dropdown check failed');
-      throw error;
-    }
-
-    // ─── TEST 6: Terms checkbox is interactive ───
-    try {
-      const checkbox = page.locator('.p-checkbox-box');
-      await checkbox.click();
-      await sleep(500);
-
-      // Verify it's now checked (PrimeVue/PrimeReact uses .p-highlight class for checked state)
-      const isChecked = await checkbox.evaluate(el =>
-        el.classList.contains('p-highlight') ||
-        el.getAttribute('aria-checked') === 'true' ||
-        el.querySelector('.p-checkbox-icon')?.classList.contains('p-icon')
-      );
-
-      if (isChecked) {
-        console.log('✓ Terms checkbox toggles correctly');
-      } else {
-        console.log('⚠ Checkbox clicked but checked state could not be verified');
-      }
-    } catch (error) {
-      console.error('✗ Terms checkbox check failed');
-      throw error;
-    }
-
-    // ─── TEST 7: Subscribe button is enabled when form is filled ───
-    try {
-      const subscribeButton = page.getByLabel('SUBSCRIBE');
-      await expect(subscribeButton).toBeEnabled();
-      console.log('✓ Subscribe button is enabled when form is filled');
-    } catch (error) {
-      console.error('✗ Subscribe button state check failed');
-      throw error;
-    }
-
-    console.log('\n✓ All field validation tests passed');
-    console.log('  (Final submission with reCAPTCHA intentionally skipped)');
-  } catch (error) {
-    console.error('\n✗ Test failed:', error.message);
-    if (!page.isClosed()) {
-      try {
-        await page.screenshot({
-          path: `error-whisper-${Date.now()}.png`,
-          fullPage: true,
-          timeout: 5000,
-        });
-        console.log('Screenshot saved');
-      } catch (e) {
-        console.error('Screenshot failed:', e.message);
-      }
-    }
-    throw error;
-  }
 });

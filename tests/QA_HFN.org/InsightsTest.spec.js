@@ -1,116 +1,123 @@
 const { test, expect } = require('@playwright/test');
 const { takeScreenshot } = require('../../utils/CommonClass');
 
-// Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const HFN_URL = 'https://awsstaging.heartfulness.org/in-en/';
+
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
+
+// Insights menu links to navigate through
+const INSIGHTS_LINKS = [
+    'Heartfulness Research',
+    'Heartfulness Magazine',
+    "Daaji's Messages",
+];
 
 
-test('Insights', async ({ page }) => {
-    test.setTimeout(60000);
-    try{
-        //Launching the Browser
- await page.goto('https://awsstaging.heartfulness.org/in-en/');
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
 
 
- await takeScreenshot(page, 'Browser launched')
+// Open the Insights menu
+async function openInsightsMenu(page) {
+    await page.getByRole('button', { name: 'Insights' }).click();
+    await sleep(800);
+}
 
- // Sign in button
- await page.click('//button[@aria-label="SIGN IN"]');
- await takeScreenshot(page, 'Sign in button clicked')
 
-//sign in with Email
-        await page.getByRole('link', { name: 'Signin with Email' }).click();
-        await takeScreenshot(page, 'Sign in with e-mail clicked')
+test('Heartfulness -> Insights menu - navigate through all links', async ({ page }) => {
+    test.setTimeout(180000);
 
-// Email field
-        await page.getByLabel('Email *').fill('karadipai@mailinator.com');
-        await takeScreenshot(page, 'Given mail has entered')
+    try {
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-        //Password field
-        await page.getByLabel('Password', { exact: true }).fill('Test@123');
-        await takeScreenshot(page, 'Password has been entered')
-        
-        //Login button
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await takeScreenshot(page, 'Login button clicked')
+        const successfullyOpened = [];
+        const failedToOpen = [];
 
- 
+        // --- Loop through each Insights link ---
+        for (const linkName of INSIGHTS_LINKS) {
+            console.log(`\nNavigating to: ${linkName}`);
+
+            try {
+                // Open Insights menu
+                await openInsightsMenu(page);
+
+                // Click the link - opens a popup (new tab)
+                const popupPromise = page.waitForEvent('popup', { timeout: 10000 });
+                await page.getByRole('link', { name: linkName }).click();
+                const popup = await popupPromise;
+
+                // Wait for popup to load
+                await popup.waitForLoadState('domcontentloaded').catch(() => {});
+                await sleep(1500);
+
+                console.log(`  ✓ Opened: ${linkName} at ${popup.url()}`);
+                successfullyOpened.push({ link: linkName, url: popup.url() });
+
+                // Close the popup
+                await popup.close();
+                await sleep(1000);
+            } catch (e) {
+                console.warn(`  ✗ Failed to open ${linkName}: ${e.message}`);
+                failedToOpen.push({ link: linkName, error: e.message });
+                // Close any lingering menus
+                await page.keyboard.press('Escape').catch(() => {});
+                await sleep(500);
+            }
+        }
+
+        await takeScreenshot(page, 'All_Insights_Links_Tested');
+
+        // --- Summary ---
+        console.log('\n=== Summary ===');
+        console.log(`Total links tested: ${INSIGHTS_LINKS.length}`);
+        console.log(`Successfully opened: ${successfullyOpened.length}`);
+        console.log(`Failed to open: ${failedToOpen.length}`);
+
+        if (successfullyOpened.length > 0) {
+            console.log('\nSuccessfully opened links:');
+            successfullyOpened.forEach(({ link, url }) => {
+                console.log(`  - ${link}: ${url}`);
+            });
+        }
+
+        if (failedToOpen.length > 0) {
+            console.log('\nLinks that failed to open:');
+            failedToOpen.forEach(({ link, error }) => {
+                console.log(`  - ${link}: ${error}`);
+            });
+        }
+
+        // Assert at least one link opened
+        expect(successfullyOpened.length).toBeGreaterThan(0);
+    } catch (error) {
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'Insights_Menu_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
     }
-    catch (error) {
-        
-        console.log("Error with Login", error.message);
-    }
-
-    
-    try{
-         await sleep(2000);
-        //Insight button
-      await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
-
-        //Simple Heartfulness
-        await page.getByRole('link', { name: 'Simple Heartfulness Practices' }).click();
-
-
-        await page.getByRole('button', { name: 'Download the PDF Download' }).click();
-
-        await page.goBack({ timeout: 10000 });
-
-       
-         
-    }catch(error){
-        console.log("Error with Insight", error.message);
-    }
-
-
-     
-    //Heartfulness Research
-    try{
-        
-        await sleep(2000);
- await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
-   const page1Promise = page.waitForEvent('popup');
-  await page.locator('[id="\\31 1"]').getByRole('link', { name: 'Heartfulness Research' }).click();
-  const page1 = await page1Promise;
-  page1.close();
-         
-    }catch(error){
-        console.log("Error with Heartfulness Research", error.message);
-    }
-
-
-    //Heartfulness Magazine
-  try{
-        
-     await sleep(2000);
- //  await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
-  const page2Promise = page.waitForEvent('popup');
-  await page.locator('[id="\\31 0"]').getByRole('link', { name: 'Heartfulness Magazine' }).click();
-  const page2 = await page2Promise;
-   page2.close();
-         
-    }catch(error){
-        console.log("Error with  Heartfulness Magazine", error.message);
-    }
-
-
-//Daaji's messages
-  try{
-        
-     await sleep(2000);
-  // await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
-  const page3Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'Daaji\'s messages' }).click();
-  const page3 = await page3Promise;
-    page3.close();
-
-         
-    }catch(error){
-        console.log("Error with  Daaji\'s messages", error.message);
-    }
-
-
-
-
-
-})
+});

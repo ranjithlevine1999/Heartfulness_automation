@@ -1,155 +1,168 @@
-const{test,expect}=require('@playwright/test')
-const { takeScreenshot  } = require('../../utils/CommonClass');
+const { test, expect } = require('@playwright/test');
+const { takeScreenshot } = require('../../utils/CommonClass');
 
-// Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-//test.use({ timeout: 90000 }); 
+const HFN_URL = 'https://awsstaging.heartfulness.org/in-en/';
+
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
+
+// General contact form data
+const GENERAL_CONTACT = {
+    firstName: 'Test',
+    lastName: 'QA',
+    email: 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org',
+    phone: '+91 87451-20258',
+    country: 'Angola',
+    gender: 'Male',
+    message: 'Testing',
+};
+
+// Technical contact form data
+const TECHNICAL_CONTACT = {
+    firstName: 'TEst',
+    lastName: 'Tech',
+    email: 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org',
+    phone: '+91 87451-23658',
+    street: 'Random',
+    message: 'QA',
+};
 
 
-test('About',async({page})=>{ 
-  test.setTimeout(90000);
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
 
-  
-    try{
-        //Launching the Browser
- await page.goto('https://awsstaging.heartfulness.org/in-en/');
- await takeScreenshot(page, 'Browser launched')
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
 
- // Sign in button
- await page.click('//button[@aria-label="SIGN IN"]');
- await takeScreenshot(page, 'Sign in button clicked')
-
-//sign in with Email
-        await page.getByRole('link', { name: 'Signin with Email' }).click();
-        await takeScreenshot(page, 'Sign in with e-mail clicked')
-
-// Email field
-        await page.getByLabel('Email *').fill('karadipai@mailinator.com');
-        await takeScreenshot(page, 'Given mail has entered')
-
-        //Password field
-        await page.getByLabel('Password', { exact: true }).fill('Test@123');
-        await takeScreenshot(page, 'Password has been entered')
-        
-        //Login button
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await takeScreenshot(page, 'Login button clicked')
-
- 
-    }
-    catch (error) {
-        
-        console.log("Error with Login", error.message);
-    }
-
-          
-
-           try {
-            // Who we are
-            await page.locator('(//a[@target="_self"])[1]').click();
-            await page.locator('(//a[@target="_self"])[1]').hover();
-            
-            await page.waitForTimeout(2000)
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
 
 
-            await page.locator('(//a[@target="_self"])[2]').click();
-            await takeScreenshot(page, 'Who are we')
+test('Heartfulness -> About + Connect With Us forms', async ({ page }) => {
+    test.setTimeout(180000);
 
-            await expect(page).toHaveTitle('Heartfulness: About Heartfulness');
-                     await page.waitForTimeout(2000)
-            const Whoweare = await page.title();
-            console.log("21.", Whoweare);
-    
-             await page.click('//label[@class="toggle_btn"]');
-            await page.locator("(//a[text()='Read More'])[3]").click();
+    try {
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-            await takeScreenshot(page, 'page 1')
+        // --- Navigate to About > Who We Are ---
+        await page.getByRole('button', { name: 'About' }).click();
+        await sleep(500);
+        await page.getByRole('link', { name: 'Who We Are' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1500);
 
-                await expect(page).toHaveTitle('lalaji');
-            await page.waitForTimeout(2000)
-                 const lalaji = await page.title();
-            console.log("22.", lalaji);
+        // --- Cycle through Who We Are carousel slides ---
+        await page.getByLabel('Go to slide 2').first().click();
+        await sleep(800);
+        await page.getByLabel('Go to slide 3').nth(1).click();
+        await sleep(800);
+        await page.getByLabel('Go to slide 4').nth(2).click();
+        await sleep(800);
+        await takeScreenshot(page, 'Who_We_Are_Slides');
 
-            await takeScreenshot(page, 'Page 2')
-            
-            await page.locator("//span[text()='Next']").click();
-            await expect(page).toHaveTitle('babuji');
-            await page.waitForTimeout(2000)
-            
-            const babuji = await page.title();
-            
-            
-            console.log("23.", babuji);
-            await page.locator("//span[text()='Next']").click();
-            
-            await takeScreenshot(page, 'Page 3')
-            
+        // --- Navigate to About > Connect With Us ---
+        await page.getByRole('button', { name: 'About' }).click();
+        await sleep(500);
+        await page.getByRole('link', { name: 'Connect With Us' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1500);
 
-            await expect(page).toHaveTitle('chariji');
-                        await page.waitForTimeout(2000)
-            const chariji = await page.title();
-                        console.log("24.", chariji);
-            await page.waitForTimeout(2000)
-                             
-            
-            await page.locator("//span[text()='Next']").click();
+        // --- General contact form (default tab) ---
+        console.log('Filling general contact form...');
+        await page.locator('input[name="first_name"]').fill(GENERAL_CONTACT.firstName);
+        await page.locator('input[name="last_name"]').fill(GENERAL_CONTACT.lastName);
+        await page.locator('input[name="email"]').fill(GENERAL_CONTACT.email);
+        await page.getByPlaceholder('1 (702) 123-').fill(GENERAL_CONTACT.phone);
 
+        // Country dropdown
+        await page.getByRole('combobox').click();
+        await sleep(500);
+        await page.getByLabel(GENERAL_CONTACT.country).click();
+        await sleep(500);
 
-            await takeScreenshot(page, 'Page 4')
-            
+        // Gender radio
+        await page.locator('div').filter({ hasText: new RegExp(`^${GENERAL_CONTACT.gender}$`) })
+            .getByRole('radio').click();
+        await sleep(300);
 
-            await expect(page).toHaveTitle('kamlesh-d-patel');
-            await page.waitForTimeout(2000)
-                    const kamlesh = await page.title();
-                                console.log("25.", kamlesh);
+        // Message
+        await page.locator('textarea[name="message"]').fill(GENERAL_CONTACT.message);
 
+        // Consent checkbox
+        await page.getByRole('checkbox').check();
+        await sleep(500);
 
-            await page.waitForTimeout(2000)
-            await page.locator("//span[text()='Back']").click();
-            
-            await page.waitForTimeout(2000)
-    
-        } catch (error) {
-            console.log("Error in Who we are header", error.message);
-        }
-    
-
-        //Connect with us
+        // reCAPTCHA "I'm not a robot"
+        // NOTE: reCAPTCHA v2 blocks automation - may need to be disabled on staging by dev team
         try {
-    
-            
-            // await page.getByRole('menuitem', { name: 'ABOUT' }).click();
-
-            // await sleep(2000);
-
-             await page.getByRole('menuitem', { name: 'ABOUT' }).click();
-  
-
-            //await page.getByRole('link', { name: 'Connect with us' }).click();
-            await page.getByRole('link', { name: 'Connect with us' }).click();
-
-
-            await takeScreenshot(page, 'Connect with us')
-
-            await expect(page).toHaveTitle('Heartfulness: Connect with us');
-            
+            await page.frameLocator('iframe[title*="reCAPTCHA"], iframe[name^="a-"]')
+                .getByLabel("I'm not a robot").click();
             await sleep(2000);
-           
-            const connectwithus = await page.title();
-            console.log("26.", connectwithus);
-
-            // await page.getByLabel('SUBMIT').click();
-            // await sleep(2000);
-
-            await page.getByRole('tab', { name: 'Technical' }).click();
-
-            await sleep(2000);
-
-           // await page.getByLabel('SUBMIT').click();
-    
-        } catch (error) {
-            console.log("Error in Connect with us page redirection", error.message);
+        } catch (e) {
+            console.warn('reCAPTCHA could not be checked:', e.message);
         }
 
-})
+        await takeScreenshot(page, 'General_Contact_Filled');
+
+        // Submit general form
+        await page.getByLabel('Submit').click();
+        await sleep(2500);
+
+        // --- Switch to Technical tab ---
+        console.log('Switching to Technical tab...');
+        await page.getByRole('tab', { name: 'Technical' }).click();
+        await sleep(1500);
+
+        // --- Technical contact form ---
+        await page.locator('input[name="first_name"]').fill(TECHNICAL_CONTACT.firstName);
+        await page.locator('input[name="last_name"]').fill(TECHNICAL_CONTACT.lastName);
+        await page.locator('input[name="email"]').fill(TECHNICAL_CONTACT.email);
+        await page.getByPlaceholder('1 (702) 123-').fill(TECHNICAL_CONTACT.phone);
+        await page.locator('textarea[name="street"]').fill(TECHNICAL_CONTACT.street);
+        await page.locator('textarea[name="message"]').fill(TECHNICAL_CONTACT.message);
+
+        // Consent checkbox
+        await page.getByRole('checkbox').check();
+        await sleep(500);
+
+        // reCAPTCHA "I'm not a robot"
+        try {
+            await page.frameLocator('iframe[title*="reCAPTCHA"], iframe[name^="a-"]')
+                .getByLabel("I'm not a robot").click();
+            await sleep(2000);
+        } catch (e) {
+            console.warn('reCAPTCHA could not be checked:', e.message);
+        }
+
+        await takeScreenshot(page, 'Technical_Contact_Filled');
+
+        // Submit technical form
+        await page.getByLabel('Submit').click();
+        await sleep(2500);
+
+        console.log('✓ About + Connect With Us forms completed');
+    } catch (error) {
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'AboutTest_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
+    }
+});

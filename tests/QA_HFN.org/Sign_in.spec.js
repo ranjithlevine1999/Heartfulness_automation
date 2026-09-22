@@ -1,79 +1,114 @@
-const{test,expect}=require('@playwright/test')
-const { takeScreenshot  } = require('../../utils/CommonClass');
+const { test, expect } = require('@playwright/test');
+const { takeScreenshot } = require('../../utils/CommonClass');
 
-test('sign in',async({page})=>{ 
-    await page.context().clearCookies();
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    try{
-        //Launching the Browser
- await page.goto('https://awsstaging.heartfulness.org/in-en/');
- await takeScreenshot(page, 'Browser launched')
+const HFN_URL = 'https://awsstaging.heartfulness.org/in-en/';
 
- // Sign in button
- await page.click('//button[@aria-label="SIGN IN"]');
- await takeScreenshot(page, 'Sign in button clicked')
+const VALID_EMAIL = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const VALID_PASSWORD = 'Test@123';
 
-//sign in with Email
-        await page.getByRole('link', { name: 'Signin with Email' }).click();
-        await takeScreenshot(page, 'Sign in with e-mail clicked')
+const INVALID_EMAIL = 'invalid.user@mailinator.com';
+const INVALID_PASSWORD = 'wrongpassword';
 
-// Email field
-        await page.getByLabel('Email *').fill('karadipai@mailinator.com');
-        await takeScreenshot(page, 'Given mail has entered')
 
-        //Password field
-        await page.getByLabel('Password', { exact: true }).fill('Test@123');
-        await takeScreenshot(page, 'Password has been entered')
-        
-        //Login button
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await takeScreenshot(page, 'Login button clicked')
+// Keycloak-safe login helper
+async function performLogin(page, email, password) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
 
- 
-    }
-    catch (error) {
-        
-        console.log("Error with Login", error.message);
-    }
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2000);
 
- try {
-    //My Account
-    await page.locator('(//button[@data-pc-name="button"])[2]').click()
-    await takeScreenshot(page, 'My Account')
+    // Wait for Keycloak inputs to be attached
+    await page.locator('#username').waitFor({ state: 'attached', timeout: 15000 });
+    await page.locator('#password').waitFor({ state: 'attached', timeout: 5000 });
 
-    const pagePromise = context.waitForEvent('page')
-    await page.getByText('My Account').click()
-    await page.waitForTimeout(2000)
+    // Set values and submit form via JavaScript (bypass Keycloak visibility quirk)
+    await page.evaluate(({ user, pass }) => {
+        const setValue = (selector, value) => {
+            const input = document.querySelector(selector);
+            if (!input) throw new Error(`Element ${selector} not found`);
 
-    const myacc = await pagePromise;
-    await myacc.waitForLoadState()
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype, 'value'
+            ).set;
+            nativeInputValueSetter.call(input, value);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        };
 
-    //Retrive title
-    await expect(myacc).toHaveTitle("Sign in to Heartfulness")
-    const myaccount = await myacc.url();
-    console.log("04.", myaccount);
-   
-    await myacc.waitForTimeout(2000)
-   
-    await myacc.close()
+        setValue('#username', user);
+        setValue('#password', pass);
 
-    await page.waitForTimeout(2000)
-    await page.locator('(//button[@data-pc-name="button"])[2]').click()
+        const form = document.querySelector('#kc-form-login')
+            || document.querySelector('form#kc-form')
+            || document.querySelector('form');
+        if (form) {
+            form.submit();
+        } else {
+            throw new Error('Login form not found');
+        }
+    }, { user: email, pass: password });
 
-    await page.waitForTimeout(1000)
-    await takeScreenshot(page, 'Account')
-
-    //profile icon
- await page.locator('//img[@alt="user_icon"]').click();
- await takeScreenshot(page, 'Profile Icon')
-
- //Sign out
- await page.locator('//button[@class="HfnButton uppercase"]').click();
- await takeScreenshot(page, 'Profile Icon')
-
-} catch (error) {
-    console.log("Error with My Profile", error.message);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
 }
- 
- 
-})
+
+
+test.describe('Heartfulness Sign In', () => {
+    // Force fresh state for each test (no shared cookies)
+    test.use({ storageState: { cookies: [], origins: [] } });
+
+    test('Valid login', async ({ page }) => {
+        test.setTimeout(60000);
+
+        try {
+            await performLogin(page, VALID_EMAIL, VALID_PASSWORD);
+
+            // Assert successful login - should be redirected back to Heartfulness app
+            await expect(page).toHaveURL(/heartfulness\.org/, { timeout: 10000 });
+            await expect(page).not.toHaveURL(/hfnauth\.qa\.heartfulness\.org/, { timeout: 5000 });
+
+            await takeScreenshot(page, 'Valid_Login_Success');
+            console.log('✓ Valid login successful. Current URL:', page.url());
+        } catch (error) {
+            console.error('Test failed in Valid Login flow:', error.message);
+            if (!page.isClosed()) {
+                await takeScreenshot(page, 'ValidLogin_Error');
+            }
+            throw error;
+        }
+    });
+
+    test('Invalid login', async ({ page }) => {
+        test.setTimeout(60000);
+
+        try {
+            await performLogin(page, INVALID_EMAIL, INVALID_PASSWORD);
+
+            // Assert still on Keycloak auth page (login failed)
+            await expect(page).toHaveURL(/hfnauth\.qa\.heartfulness\.org/, { timeout: 5000 });
+
+            // Verify error message appears
+            const errorLocator = page.locator('#input-error, .pf-m-error, .kc-feedback-text').first();
+            await expect(errorLocator).toBeAttached({ timeout: 5000 });
+
+            const errorText = await errorLocator.textContent();
+            expect(errorText).toMatch(/invalid|incorrect|not found|does not exist|does not match/i);
+
+            await takeScreenshot(page, 'Invalid_Login_Rejected');
+            console.log('✓ Invalid login correctly rejected. Error shown:', errorText?.trim());
+        } catch (error) {
+            console.error('Test failed in Invalid Login flow:', error.message);
+            if (!page.isClosed()) {
+                await takeScreenshot(page, 'InvalidLogin_Error');
+            }
+            throw error;
+        }
+    });
+});

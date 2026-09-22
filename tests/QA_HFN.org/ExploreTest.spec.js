@@ -1,171 +1,126 @@
 const { test, expect } = require('@playwright/test');
 const { takeScreenshot } = require('../../utils/CommonClass');
 
-// Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-test('Explore',async({page})=>{ 
-try {
-    
-            //Launching the Browser
- await page.goto('https://awsstaging.heartfulness.org/in-en/');
- await takeScreenshot(page, 'Browser launched')
+const HFN_URL = 'https://awsstaging.heartfulness.org/in-en/';
 
- // Sign in button
- await page.click('//button[@aria-label="SIGN IN"]');
- await takeScreenshot(page, 'Sign in button clicked')
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
 
-//sign in with Email
-        await page.getByRole('link', { name: 'Signin with Email' }).click();
-        await takeScreenshot(page, 'Sign in with e-mail clicked')
+const CITY_SEARCH = 'chennai';
+const CITY_OPTION = 'Chennai, Tamil Nadu, India';
 
-// Email field
-        await page.getByLabel('Email *').fill('karadipai@mailinator.com');
-        await takeScreenshot(page, 'Given mail has entered')
 
-        //Password field
-        await page.getByLabel('Password', { exact: true }).fill('Test@123');
-        await takeScreenshot(page, 'Password has been entered')
-        
-        //Login button
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await takeScreenshot(page, 'Login button clicked')
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
 
- 
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
+
+
+test('Heartfulness -> Explore flow (Personal Trainer + Group Sessions + Initiatives)', async ({ page }) => {
+    test.setTimeout(180000);
+
+    try {
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
+
+        // --- Open Explore menu -> Individual Practice ---
+        await page.getByRole('button', { name: 'Explore', exact: true }).click();
+        await sleep(500);
+        await page.getByRole('link', { name: 'Individual Practice' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1500);
+
+        // --- Open Explore menu -> Personal Trainer ---
+        await page.getByRole('button', { name: 'Explore' }).click();
+        await sleep(500);
+        await page.getByRole('link', { name: 'Personal Trainer' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2000);
+
+        // --- Interact with the Personal Trainer iframe ---
+        const trainerFrame = page.locator('iframe[title="Online Meditation"]').contentFrame();
+
+        // Click Add (+) icon to start
+        await trainerFrame.getByTestId('AddCircleOutlineIcon').locator('path').click();
+        await sleep(1000);
+
+        // Connect with a trainer
+        await trainerFrame.getByRole('button', { name: 'Connect with a trainer' }).click();
+        await sleep(1500);
+
+        // Cancel the connection
+        await trainerFrame.getByRole('button', { name: 'Cancel' }).click();
+        await sleep(500);
+
+        // Confirm cancellation
+        await trainerFrame.getByRole('button', { name: 'Yes' }).click();
+        await sleep(1000);
+
+        // Select "Other reasons" for cancellation
+        await trainerFrame.locator('label').filter({ hasText: 'Other reasons' }).click();
+        await sleep(500);
+
+        // Submit cancellation feedback
+        await trainerFrame.getByRole('button', { name: 'Submit' }).click();
+        await sleep(2000);
+
+        await takeScreenshot(page, 'Trainer_Cancellation_Submitted');
+
+        // --- Open Explore menu again -> Group Sessions ---
+        await page.getByText('ExploreIndividual').click();
+        await sleep(500);
+        await page.getByRole('link', { name: 'Group Sessions' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1500);
+
+        // --- Search location for Group Sessions ---
+        const locationSearch = page.getByRole('textbox', { name: 'Search Location' });
+        await locationSearch.fill(CITY_SEARCH);
+        await sleep(1000);
+        await page.getByText(CITY_OPTION, { exact: true }).click();
+        await sleep(500);
+
+        // Click SEARCH
+        await page.getByRole('button', { name: 'SEARCH', exact: true }).click();
+        await sleep(2000);
+
+        await takeScreenshot(page, 'Group_Sessions_Search');
+
+        // --- Open Explore menu -> Heartfulness Initiatives ---
+        await page.getByRole('button', { name: 'Explore' }).click();
+        await sleep(500);
+        await page.getByRole('link', { name: 'Heartfulness Initiatives' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2000);
+
+        await takeScreenshot(page, 'Heartfulness_Initiatives');
+
+        console.log('✓ Explore flow completed');
+    } catch (error) {
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'Explore_Flow_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
     }
-    catch (error) {
-        
-        console.log("Error with Login", error.message);
-    }
-
-try {
-    // Individual Practice
-    await page.locator('(//a[@target="_self"])[4]').click();
-    await page.locator('(//a[@target="_self"])[5]').click();
-
-    await sleep(1000);
-   
-    await takeScreenshot(page, 'Individual Practice');
-
-    await page.waitForTimeout(2000)
-   
-    await expect(page).toHaveTitle('Heartfulness: Practice')
-    const indiv = await page.title();
-    console.log("27.", indiv);
-
-} catch (error) {
-    console.log("Header Individual practice", error.message);
-}
-
-try {
-    //Personal Trainer
-    await page.locator('(//a[@target="_self"])[4]').click();
-    await page.locator('(//a[@target="_self"])[6]').click();
-    
-    await sleep(1000);
-
-    await takeScreenshot(page, 'Personal Trainer');
-
-    await page.waitForTimeout(2000)
-
-    await expect(page).toHaveTitle('Meditate Online')
-    const pers = await page.title();
-    console.log("28.", pers);
-
-} catch (error) {
-    console.log("Header Meditation Place ", error.message);
-}
-
-try {
-    //Group Session
-    await page.locator('(//a[@target="_self"])[4]').click();
-    await page.locator('(//a[@target="_self"])[7]').click();
-    
-    await sleep(1000);
-
-    await takeScreenshot(page, 'Group session');
-
-    await page.waitForTimeout(2000)
-
-
-    await expect(page).toHaveTitle('Heartspots')
-    const groups = await page.title();
-    console.log("29.", groups)
-
-    //Home Button
-    await page.goto("https://heartfulness.org/global")
-    await page.waitForTimeout(2000)
-
-
-    //Heartfulness Initiatives
-    await page.getByRole('menuitem', { name: 'EXPLORE' }).click();
-
-    await sleep(1000);
-
-    await page.click('//span[contains(text(),"Heartfulness Initiatives")]');
-    //await page.getByRole('menuitem', { name: 'Heartfulness Initiatives' }).click();
-    await page.waitForTimeout(2000)
-
-    await sleep(1000);
-
-    await takeScreenshot(page, 'Heartfulness Initiatives');
-
-    await expect(page).toHaveTitle('Heartfulness Initiatives')
-    const init = await page.title(); 
-
-} catch (error) {
-    console.log("Header Meditation Place ", error.message);
-}
-
- //page of Heartfulness Initiatives
-
-// Parent element
-const parent = page.locator('//div[@class="p-grid grid p-nogutter grid-nogutter"]');
-
-// Child elements
-const children = parent.locator('//div[@class="p-grid-items mb-4"]');
-
-const childCount = await children.count();
-
-console.log("     ");
-
-console.log(`Number of cards present in the Heartfulness Initiatives is : ${childCount}`);
-
-console.log("     ");
-
-
-//======>> Simple output in the redable format
-
-
-
-// for (let i = 0; i < childCount; i++) {
-//   // Locate the title element within each child card
-//   const cardTitle = await children.nth(i).locator('//h4[@class="initiatives_title"]').textContent();
-//   cards.push(`Card ${i + 1}: ${cardTitle.trim()}`); // Collect only the titles
-// }
-
-
-
-const cards = []; //store card titles
-
-for (let i = 0; i < childCount; i++) {
-  // Locate the title element within each child card
-  const cardTitle = await children.nth(i).locator('//h4[@class="initiatives_title"]').textContent(); 
-  cards.push({ Index: i + 1, Title: cardTitle.trim() }); // Collect only the titles with index
-}
-
-// Log all card titles in table format
-console.log('Heartfulness Initiatives Card Titles:');
-console.table(
-  cards.map((card) => ({ List: card.Index, Title: card.Title }))
-);
-
-
-
-//await takeScreenshot(page, `Number of cards present in the Heartfulness Initiatives is : ${childCount}`);
-
-
-   
 });
-
-

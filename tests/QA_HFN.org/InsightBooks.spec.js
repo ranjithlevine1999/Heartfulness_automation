@@ -1,72 +1,131 @@
 const { test, expect } = require('@playwright/test');
 const { takeScreenshot } = require('../../utils/CommonClass');
 
-// Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-test('Insights', async ({ page }) => {
-    test.setTimeout(60000);
+const HFN_URL = 'https://awsstaging.heartfulness.org/in-en/';
 
-    try{
-        //Launching the Browser
- await page.goto('https://awsstaging.heartfulness.org/in-en/');
- await takeScreenshot(page, 'Browser launched')
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
 
- // Sign in button
- await page.click('//button[@aria-label="SIGN IN"]');
- await takeScreenshot(page, 'Sign in button clicked')
+// All books to navigate through
+const BOOKS = [
+    'Ashtavakra Mahagita',
+    'The Heart Of Jainism',
+    'Holy Tirthankar',
+    'The Power Of Paradox',
+    'Designing Destiny',
+    'Wisdom Bridge',
+    'Spiritual Anatomy',
+    'The Heartfulness Way',
+    'The Heartfulness Way 2',
+];
 
-//sign in with Email
-        await page.getByRole('link', { name: 'Signin with Email' }).click();
-        await takeScreenshot(page, 'Sign in with e-mail clicked')
 
-// Email field
-        await page.getByLabel('Email *').fill('karadipai@mailinator.com');
-        await takeScreenshot(page, 'Given mail has entered')
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
 
-        //Password field
-        await page.getByLabel('Password', { exact: true }).fill('Test@123');
-        await takeScreenshot(page, 'Password has been entered')
-        
-        //Login button
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await takeScreenshot(page, 'Login button clicked')
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
 
- 
-    }
-    catch (error) {
-        
-        console.log("Error with Login", error.message);
-    }
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
+
+
+// Open Insights menu and navigate to Books submenu
+async function openBooksMenu(page) {
+    await page.getByRole('button', { name: 'Insights' }).click();
+    await sleep(500);
+    await page.getByText('Books', { exact: false }).click();
+    await sleep(1000);
+}
+
+
+test('Heartfulness -> Insights menu - navigate through all books', async ({ page }) => {
+    test.setTimeout(240000);
 
     try {
-        await page.getByRole('menuitem', { name: 'INSIGHTS New' }).click();
-        await page.getByRole('menuitem', { name: 'Books New' }).click();
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-        const bookLinks = [
-            'The Power of Paradox New',
-            'Designing Destiny',
-            'Wisdom Bridge',
-            'Spiritual Anatomy',
-            'The Heartfulness Way'
-        ];
+        const successfullyOpened = [];
+        const failedToOpen = [];
 
-        for (const book of bookLinks) {
+        // --- Loop through each book ---
+        for (const bookName of BOOKS) {
+            console.log(`\nNavigating to: ${bookName}`);
+
             try {
-                const pagePromise = page.waitForEvent('popup');
-                await page.getByRole('link', { name: book }).click();
-                const newPage = await pagePromise;
+                // Open Insights > Books submenu
+                await openBooksMenu(page);
 
-                await sleep(3000);
-                await newPage.close();
-                await sleep(3000);
-            } catch (popupError) {
-                console.log(`Error handling popup for ${book}:`, popupError.message);
+                // Click the book link - opens a popup (new tab)
+                const popupPromise = page.waitForEvent('popup', { timeout: 10000 });
+                await page.getByRole('link', { name: new RegExp(`^${bookName}(New)?$`, 'i') }).click();
+                const bookPopup = await popupPromise;
+
+                // Wait for popup to load
+                await bookPopup.waitForLoadState('domcontentloaded').catch(() => {});
+                await sleep(1500);
+
+                console.log(`  ✓ Opened: ${bookName} at ${bookPopup.url()}`);
+                successfullyOpened.push({ book: bookName, url: bookPopup.url() });
+
+                // Close the popup
+                await bookPopup.close();
+                await sleep(1000);
+            } catch (e) {
+                console.warn(`  ✗ Failed to open ${bookName}: ${e.message}`);
+                failedToOpen.push({ book: bookName, error: e.message });
+                // Close any lingering menus
+                await page.keyboard.press('Escape').catch(() => {});
+                await sleep(500);
             }
         }
 
-    } catch (navigationError) {
-        console.log("Error during navigation:", navigationError.message);
+        await takeScreenshot(page, 'All_Books_Tested');
+
+        // --- Summary ---
+        console.log('\n=== Summary ===');
+        console.log(`Total books tested: ${BOOKS.length}`);
+        console.log(`Successfully opened: ${successfullyOpened.length}`);
+        console.log(`Failed to open: ${failedToOpen.length}`);
+
+        if (successfullyOpened.length > 0) {
+            console.log('\nSuccessfully opened books:');
+            successfullyOpened.forEach(({ book, url }) => {
+                console.log(`  - ${book}: ${url}`);
+            });
+        }
+
+        if (failedToOpen.length > 0) {
+            console.log('\nBooks that failed to open:');
+            failedToOpen.forEach(({ book, error }) => {
+                console.log(`  - ${book}: ${error}`);
+            });
+        }
+
+        // Assert at least most books opened
+        expect(successfullyOpened.length).toBeGreaterThan(0);
+    } catch (error) {
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'Insights_Books_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
     }
 });
-

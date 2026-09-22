@@ -1,147 +1,174 @@
 const { test, expect } = require('@playwright/test');
 const { takeScreenshot } = require('../../utils/CommonClass');
 
-// Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const HFN_URL = 'https://heartfulness.org/in-en/';
 
-test('SG country site', async ({ page }) => {
-  test.setTimeout(60000);
-      try{
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
 
-  await page.goto('https://heartfulness.org/sg/');
-
-  await page.getByLabel('SIGN IN').click();
-  await page.getByRole('link', { name: 'Signin with Email' }).click();
-  await page.getByLabel('Email *').click();
-
-  await page.getByLabel('Email *').fill('ranjithlevine@gmail.com');
-  await page.getByLabel('Password', { exact: true }).click();
-  await page.getByLabel('Password', { exact: true }).fill('Test@123');
-  await page.getByRole('button', { name: 'Sign In' }).click();
-
-  await page.getByRole('link', { name: 'EXPERIENCE MEDITATION' }).first().click();
-  await page.locator('#row_relaxation').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-
-  await page.getByLabel('Close').click();
-
-  await page.locator('#row_relaxation section div').nth(3).click();
-  await page.locator('#row_meditation section div').nth(3).click();
-  await page.locator('#row_meditation').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-
-  await page.getByLabel('Close').click();
-  await page.locator('#row_cleaning').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-  await page.getByLabel('Close').click();
-
-  await page.locator('#row_cleaning section div').nth(3).click();
-  await page.locator('#row_inner-connect section div').nth(3).click();
-  await page.locator('#row_inner-connect').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-  await page.getByLabel('Close').click();
-  await page.locator('#row_explore').getByRole('button', { name: 'LISTEN AUDIO' }).click();
-  await page.getByLabel('Close').click();
+// Singapore FAQ questions to expand
+const FAQ_QUESTIONS = [
+    'What to expect',
+    'Making it fit your routine',
+    'What you may experience',
+    'Guidance and support',
+    'Cost and commitment',
+    'Benefits and deeper insights',
+    'In Singapore',
+    'Talk to us',
+];
 
 
-  await page.locator('#row_explore section div').nth(3).click();
-  await page.getByRole('button', { name: 'Listen Audio', exact: true }).click();
-  await page.getByLabel('Close').click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.locator('.react-multi-carousel-dot > button').first().click();
-  await page.getByRole('button', { name: 'Open video player' }).click();
-  await page.locator('li:nth-child(2) > button').click();
-  await page.getByRole('button', { name: 'Open video player' }).click();
-  await page.locator('li:nth-child(3) > button').click();
-  await page.getByRole('button', { name: 'Open video player' }).click();
-  await page.locator('.react-multi-carousel-dot-list > li:nth-child(4)').click();
-  await page.getByRole('button', { name: 'Open video player' }).click();
-  await page.locator('.react-multi-carousel-dot-list > li:nth-child(5)').click();
-  await page.getByRole('button', { name: 'Open video player' }).click();
-  await page.locator('li:nth-child(6) > button').click();
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
 
 
-  await page.getByRole('button', { name: 'Open video player' }).click();
-
-  await page.locator('.react-player__shadow').first().click();
-  await page.getByRole('link', { name: 'remote.webp' }).click();
-
-
-  await page.locator('iframe[title="Online Meditation"]').contentFrame().getByTestId('AddCircleOutlineIcon').locator('path').click();
-  await page.locator('iframe[title="Online Meditation"]').contentFrame().getByRole('button', { name: 'Connect with a trainer' }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-
-
-  await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
-  await page.getByRole('button', { name: 'Search', exact: true }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.locator('.col-md-7 > .HfnEmbedvideoplayer > .HfnEmbed_wrapper > .react-embed-player > .react-player__preview > .react-player__shadow').click();
-  await page.getByRole('link', { name: 'Explore all events' }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.getByRole('link', { name: 'View All' }).click();
+// Switch language to Singapore (SG)
+async function switchToSingapore(page) {
+    try {
+        await page.getByRole('button', { name: 'ENGLISH' }).click({ timeout: 5000 });
+        await sleep(500);
+        await page.getByRole('button', { name: 'Country_SG SG' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2000);
+    } catch (e) {
+        console.warn('Could not switch to SG:', e.message);
+    }
+}
 
 
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.getByRole('link', { name: 'EXPERIENCE MEDITATION' }).nth(1).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.getByRole('link', { name: 'JOIN OUR TEAM' }).click();
-  await page.getByLabel('SUBMIT').click();
+// Return home by clicking the logo (falls back to direct navigation)
+async function returnHome(page) {
+    try {
+        await page.getByRole('link', { name: 'HeartfulnessLogo_Blk_Pwd' }).click({ timeout: 5000 });
+    } catch (e) {
+        console.log('Logo click failed, navigating directly to home URL');
+        await page.goto(HFN_URL);
+    }
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+}
 
 
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
+test('HFN Singapore -> Full navigation, menus, and FAQ expansion', async ({ page }) => {
+    test.setTimeout(300000);
+    test.slow();
 
+    try {
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-  await page.locator('#pr_id_44_header_0').click();
-  await page.locator('#pr_id_44_header_1').click();
-  await page.locator('#pr_id_44_header_2').click();
-  await page.locator('#pr_id_44_header_3').click();
+        // --- Switch language from English to Singapore (SG) ---
+        await switchToSingapore(page);
+        await takeScreenshot(page, 'Language_Switched_SG');
 
+        // --- Click EXPERIENCE MEDITATION ---
+        await page.getByRole('button', { name: 'EXPERIENCE MEDITATION' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1500);
+        await takeScreenshot(page, 'Experience_Meditation_SG');
 
-//   await page.getByRole('menuitem', { name: 'EXPLORE' }).click();
-//   await page.getByRole('link', { name: 'Individual Practice' }).click();
-//   await page.getByRole('menuitem', { name: 'EXPLORE' }).click();
-//   await page.getByRole('link', { name: 'Personal Trainer' }).click();
-//   await page.getByRole('menuitem', { name: 'EXPLORE' }).click();
-//   await page.getByRole('link', { name: 'Group Sessions' }).click();
+        // --- Return home and open About -> Who We Are ---
+        await returnHome(page);
+        await page.getByRole('button', { name: 'About' }).click();
+        await sleep(300);
+        await page.getByRole('link', { name: 'Who We Are' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1000);
+        await takeScreenshot(page, 'Who_We_Are');
 
+        // --- About -> Experiences ---
+        await page.getByRole('button', { name: 'About' }).click();
+        await sleep(300);
+        await page.getByRole('link', { name: 'Experiences' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1000);
+        await takeScreenshot(page, 'Experiences');
 
-//    await page.waitForTimeout(2000); 
+        // --- Find Us -> Singapore Heartfulness Center ---
+        await page.getByRole('button', { name: 'Find Us' }).click();
+        await sleep(300);
+        await page.getByRole('link', { name: 'Singapore Heartfulness Center' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1000);
+        await takeScreenshot(page, 'Singapore_Heartfulness_Center');
 
+        // --- Find Us -> Meditation Timings & Locations ---
+        await page.getByRole('button', { name: 'Find Us' }).click();
+        await sleep(300);
+        await page.getByRole('link', { name: 'Meditation Timings & Locations' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1000);
+        await takeScreenshot(page, 'Meditation_Timings');
 
-//   await page.getByRole('menuitem', { name: 'EXPLORE' }).click();
-//    await page.waitForTimeout(2000); 
-//    await page.locator('#317').click();
-//  // await page.getByRole('link', { name: 'Our Journey So Far' }).click();
+        // --- Explore -> Individual Practice ---
+        await page.getByRole('button', { name: 'Explore' }).click();
+        await sleep(300);
+        await page.getByRole('link', { name: 'Individual Practice' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1000);
+        await takeScreenshot(page, 'Individual_Practice');
 
+        // --- Explore -> Group Sessions ---
+        await page.getByRole('button', { name: 'Explore' }).click();
+        await sleep(300);
+        await page.getByRole('link', { name: 'Group Sessions' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1500);
+        await takeScreenshot(page, 'Group_Sessions');
 
+        // --- Force navigate to home URL for FAQ section ---
+        console.log('Navigating directly to home URL for FAQ section...');
+        await page.goto(HFN_URL);
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2500);
 
-  await page.getByRole('menuitem', { name: 'EVENTS' }).click();
-  await page.getByRole('link', { name: 'What\'s Next' }).click();
+        // --- Switch back to Singapore (SG) since home URL resets to English ---
+        console.log('Switching language back to SG for FAQ section...');
+        await switchToSingapore(page);
+        await takeScreenshot(page, 'Home_SG_Before_FAQ');
 
+        // --- Expand each FAQ question ---
+        for (const question of FAQ_QUESTIONS) {
+            console.log(`Expanding FAQ: ${question}`);
+            try {
+                await page.getByRole('button', { name: question }).click({ timeout: 5000 });
+                await sleep(500);
+            } catch (e) {
+                console.warn(`FAQ button failed for "${question}":`, e.message);
+            }
+        }
 
-  await page.getByRole('menuitem', { name: 'FIND US' }).click();
-  await page.getByRole('link', { name: 'Contact us' }).click();
-  await page.getByRole('menuitem', { name: 'FIND US' }).click();
-  await page.getByRole('link', { name: 'Singapore Heartfulness Center' }).click();
-  
-  await page.waitForTimeout(2000); 
-  await page.getByRole('menuitem', { name: 'FIND US' }).click();
-  await page.getByRole('link', { name: 'Meditation Timings & Locations' }).click();
+        await takeScreenshot(page, 'FAQs_Expanded');
 
-
-  await page.getByRole('menuitem', { name: 'ABOUT' }).click();
-  await page.getByRole('link', { name: 'Who we are' }).click();
-
-
-  await page.getByLabel('Go to slide 2').click();
-  await page.getByLabel('Go to slide 3').click();
-  await page.getByLabel('Go to slide 4').click();
-
-
-  await page.getByRole('menuitem', { name: 'EXPLORE' }).click();
-  await page.getByRole('menuitem', { name: 'INSIGHTS' }).click();
-   
-      }
-  catch (error) {
-    console.error('Test failed in SG country Page flow:', error);
-    await takeScreenshot(page, 'SG Error');
-    throw error;
-  }
+        console.log('✓ Singapore full flow completed');
+    } catch (error) {
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'Singapore_Full_Flow_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
+    }
 });

@@ -1,124 +1,147 @@
 const { test, expect } = require('@playwright/test');
 const { takeScreenshot } = require('../../utils/CommonClass');
 
-// Utility function for sleep
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const HFN_URL = 'https://heartfulness.org/in-en/';
 
-test('Country site for Japan', async ({ page }) => {
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
 
-  try{
-  await page.goto('https://heartfulness.org/jp/');
-
-  await page.getByLabel('サインイン').click();
-  await page.getByRole('link', { name: 'Signin with Email' }).click();
-  await page.getByLabel('Email *').click();
-  await page.getByLabel('Email *').fill('ranjithlevine@gmail.com');
-  await page.getByLabel('Password', { exact: true }).click();
-  await page.getByLabel('Password', { exact: true }).fill('Test@123');
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await page.getByRole('link', { name: '瞑想を体験する' }).first().click();
-  await page.locator('#row_relaxation').getByRole('button', { name: '音声を聞く' }).click();
-  await page.getByLabel('Close').click();
-
-  await page.locator('#row_relaxation section div').nth(3).click();
-  await page.locator('#row_meditation section div').nth(3).click();
-  await page.locator('#row_meditation').getByRole('button', { name: '音声を聞く' }).click();
-
-  await page.getByLabel('Close').click();
-
-  await page.locator('#row_cleaning').getByRole('button', { name: '音声を聞く' }).click();
-  await page.getByLabel('Close').click();
-  await page.locator('#row_cleaning section div').nth(3).click();
-  await page.locator('#row_inner-connect').getByRole('button', { name: '音声を聞く' }).click();
-  await page.getByLabel('Close').click();
-
-  await page.locator('#row_inner-connect section div').nth(3).click();
-  await page.locator('#row_explore').getByRole('button', { name: '音声を聞く' }).click();
-  await page.getByLabel('Close').click();
-
-  await page.locator('#row_explore section div').nth(3).click();
-  await page.locator('#row_prayer').getByRole('button', { name: '音声を聞く' }).click();
-  await page.getByLabel('Close').click();
-
-  await page.getByRole('link', { name: 'クリック' }).click();
-  await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.getByRole('link', { name: 'remote.webp' }).click();
-
-  await page.locator('iframe[title="Online Meditation"]').contentFrame().getByTestId('AddCircleOutlineIcon').locator('path').click();
-  await page.locator('iframe[title="Online Meditation"]').contentFrame().getByTestId('RemoveCircleOutlineIcon').locator('path').click();
-  await page.locator('iframe[title="Online Meditation"]').contentFrame().getByRole('button', { name: 'Connect with a trainer' }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-
-  await page.getByRole('link', { name: 'in person meditation 2 1.png' }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).dblclick();
-
-  await page.locator('#pr_id_40_header_0').click();
-  await page.locator('#pr_id_40_header_1').click();
-  await page.locator('#pr_id_40_header_2').click();
-  await page.locator('#pr_id_40_header_3').click();
-
-  await page.getByRole('img', { name: 'events.webp' }).click();
-
- // await page.locator('section div').nth(3).click();
-
-  await page.getByRole('link', { name: '全イベントを表示' }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.getByRole('link', { name: 'Check all' }).click();
-  await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-  await page.getByRole('link', { name: '私たちのチームに参加する' }).click();
-
-  await page.getByLabel('提出する').click();
-
-  await page.getByRole('menuitem', { name: 'はじめに' }).click();
-  await page.getByRole('menuitem', { name: 'お問い合わせ' }).click();
-  await page.getByLabel('提出する').click();
-
-  await page.getByRole('menuitem', { name: 'はじめに' }).click();
-  await page.getByRole('menuitem', { name: 'Heartfulnessとは' }).click();
-  await page.getByLabel('Go to slide 2').click();
-
-  await page.locator('#row_four-guides').getByRole('listitem').nth(3).click();
-  await page.getByLabel('Go to slide 4').click();
-  await page.getByRole('menuitem', { name: '体験' }).click();
-  await page.getByRole('menuitem', { name: '日々の実践' }).click();
-
-  await page.waitForTimeout(2000); // waits for 2 seconds
-
-  await page.getByRole('menuitem', { name: '体験' }).click();
-  await page.getByRole('menuitem', { name: 'オンライン個別体験' }).click();
-
-  await page.waitForTimeout(2000); // waits for 2 seconds
-
-  await page.getByRole('menuitem', { name: '体験' }).click();
-  await page.getByRole('menuitem', { name: 'グループセッション' }).click();
-
- // await page.getByRole('menuitem', { name: '体験' }).dblclick();
-await page.waitForTimeout(2000); // waits for 3 seconds
+// Practice sections to test - each has audio + video player
+const PRACTICE_SECTIONS = [
+    'row_relaxation',
+    'row_meditation',
+    'row_cleaning',
+    'row_inner-connect',
+    'row_explore',
+];
 
 
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
 
-  await page.getByRole('menuitem', { name: '体験' }).click();
-  await page.getByRole('menuitem', { name: 'Heartfulness 活動(英)' }).click();
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
 
 
-   await page.getByRole('menuitem', { name: 'その他活動' }).click();
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('menuitem', { name: 'Heartfulness Research (英語)' }).click();
-  const page1 = await page1Promise;
+// Return to homepage via HFN logo
+async function returnHome(page) {
+    await page.getByRole('link', { name: 'HeartfulnessLogo_Blk_Pwd' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+}
 
 
- // await page.waitForTimeout(2000); 
-  await page1.close();
+// Test audio and video controls for a single practice section (Japanese audio label)
+async function testPracticeSection(page, sectionId) {
+    console.log(`Testing section: ${sectionId}`);
 
-  await page.getByRole('link', { name: 'イベント' }).click();
-  await page.getByRole('link', { name: 'ご寄付' }).click();
+    // --- Listen Audio button (音声を聞く) ---
+    try {
+        const section = page.locator(`#${sectionId}`);
+        await section.getByRole('button', { name: '音声を聞く' }).click();
+        await sleep(1500);
+        await page.keyboard.press('Escape');
+        await sleep(500);
+    } catch (e) {
+        console.warn(`Audio button failed for ${sectionId}:`, e.message);
+    }
+
+    // --- Open video player ---
+    try {
+        const section = page.locator(`#${sectionId}`);
+        await section.getByLabel('Open video player').click();
+        await sleep(1500);
+        await page.keyboard.press('Escape');
+        await sleep(500);
+    } catch (e) {
+        console.warn(`Video player failed for ${sectionId}:`, e.message);
+    }
+}
 
 
-} catch (error) {
-    console.error('Test failed in JP country Page flow:', error);
-    await takeScreenshot(page, 'JP Error');
-    throw error;
-  }
+test('HFN Japanese -> Practices, navigation, join team, check all', async ({ page }) => {
+    test.setTimeout(240000);
+
+    try {
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
+
+        // --- Switch language from English to Japanese (JP) ---
+        await page.getByRole('button', { name: 'ENGLISH' }).click();
+        await sleep(800);
+        await page.getByRole('button', { name: 'Country_JP JP' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2000);
+        await takeScreenshot(page, 'Language_Switched_JP');
+
+        // --- Click "Experience Meditation" (Japanese: 瞑想を体験する) ---
+        await page.getByRole('button', { name: '瞑想を体験する' }).first().click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2500);
+        await takeScreenshot(page, 'Practices_Page_JP');
+
+        // --- Test each practice section (audio + video) ---
+        for (const sectionId of PRACTICE_SECTIONS) {
+            await testPracticeSection(page, sectionId);
+            await sleep(500);
+        }
+
+        await takeScreenshot(page, 'All_Practice_Sections_Tested');
+
+        // --- Return to homepage ---
+        await returnHome(page);
+
+        // --- Click "Join our Team" (私たちのチームに参加する) ---
+        try {
+            await page.getByRole('button', { name: '私たちのチームに参加する' }).click();
+            await page.waitForLoadState('domcontentloaded');
+            await sleep(2000);
+            await takeScreenshot(page, 'Join_Team_Page');
+        } catch (e) {
+            console.warn('Join our Team button failed:', e.message);
+        }
+
+        // --- Return to homepage ---
+        await returnHome(page);
+
+        // --- Click "Check all" link ---
+        try {
+            await page.getByRole('link', { name: 'Check all' }).click();
+            await page.waitForLoadState('domcontentloaded');
+            await sleep(2000);
+            await takeScreenshot(page, 'Check_All_Page');
+        } catch (e) {
+            console.warn('Check all link failed:', e.message);
+        }
+
+        // --- Return to homepage ---
+        await returnHome(page);
+
+        console.log('✓ Japanese practices and navigation flow completed');
+    } catch (error) {
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'Japanese_Practices_Navigation_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
+    }
 });

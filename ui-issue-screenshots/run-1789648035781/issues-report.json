@@ -1,0 +1,58 @@
+[
+  {
+    "type": "ONE_SIDED_BLANK_SPACE",
+    "page": "Home / Meditation Places",
+    "severity": "MEDIUM",
+    "details": "LEFT-blank space next to 398px element at y=361px",
+    "element": "DIV.p-6 font-publicSans flex flex-1 flex-col justify-between",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648035781/ONE_SIDED_LEFT-blank_Home___Meditation_Places_1789648047436.png"
+  },
+  {
+    "type": "ONE_SIDED_BLANK_SPACE",
+    "page": "Home / Meditation Places",
+    "severity": "MEDIUM",
+    "details": "RIGHT-blank space next to 390px element at y=363px",
+    "element": "DIV.p-6 font-publicSans flex flex-1 flex-col justify-between",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648035781/ONE_SIDED_RIGHT-blank_Home___Meditation_Places_1789648048502.png"
+  },
+  {
+    "type": "ONE_SIDED_BLANK_SPACE",
+    "page": "Home / Meditation Places",
+    "severity": "MEDIUM",
+    "details": "LEFT-blank space next to 319px element at y=385px",
+    "element": "DIV.flex-grow space-y-2",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648035781/ONE_SIDED_LEFT-blank_Home___Meditation_Places_1789648049550.png"
+  },
+  {
+    "type": "ONE_SIDED_BLANK_SPACE",
+    "page": "Home / Meditation Places",
+    "severity": "MEDIUM",
+    "details": "RIGHT-blank space next to 313px element at y=387px",
+    "element": "DIV.flex-grow space-y-2",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648035781/ONE_SIDED_RIGHT-blank_Home___Meditation_Places_1789648050598.png"
+  },
+  {
+    "type": "ONE_SIDED_BLANK_SPACE",
+    "page": "Home / Meditation Places",
+    "severity": "MEDIUM",
+    "details": "RIGHT-blank space next to 571px element at y=798px",
+    "element": "DIV.bg-card text-card-foreground duration-[2200ms] group mb-",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648035781/ONE_SIDED_RIGHT-blank_Home___Meditation_Places_1789648051649.png"
+  },
+  {
+    "type": "ONE_SIDED_BLANK_SPACE",
+    "page": "Search Results",
+    "severity": "MEDIUM",
+    "details": "RIGHT-blank space next to 390px element at y=363px",
+    "element": "DIV.p-6 font-publicSans flex flex-1 flex-col justify-between",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648035781/ONE_SIDED_RIGHT-blank_Search_Results_1789648055637.png"
+  },
+  {
+    "type": "ONE_SIDED_BLANK_SPACE",
+    "page": "Search Results",
+    "severity": "MEDIUM",
+    "details": "RIGHT-blank space next to 313px element at y=387px",
+    "element": "DIV.flex-grow space-y-2",
+    "screenshot": "/Users/htcuser/Documents/HFN_Web_Automation/ui-issue-screenshots/run-1789648035781/ONE_SIDED_RIGHT-blank_Search_Results_1789648056600.png"
+  }
+]

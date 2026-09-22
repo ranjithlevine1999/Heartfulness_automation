@@ -1,94 +1,85 @@
-const{test,expect}=require('@playwright/test')
-const { takeScreenshot  } = require('../../utils/CommonClass');
+const { test, expect } = require('@playwright/test');
+const { takeScreenshot } = require('../../utils/CommonClass');
 
-test('Events',async({page,context})=>{ 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    try {
+const HFN_URL = 'https://awsstaging.heartfulness.org/in-en/events/';
 
-        //Launching the Browser
-        await page.goto('https://awsstaging.heartfulness.org/in-en/');
-        await takeScreenshot(page, 'Browser launched')
-
-     
-        // // EventS Home
-        // const pagePromise2 = context.waitForEvent('page')
-        // await page.locator("(//i[@class='pi pi-arrow-up-right'])[1]").hover();
-      
-        // await page.waitForTimeout(1000)
-        // await page.locator("(//i[@class='pi pi-arrow-up-right'])[1]").click();
-      
-        // await takeScreenshot(page, 'EventsHome')
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
 
 
-        // const EventS = await pagePromise2;
-        // await EventS.waitForLoadState()
-        // await expect(EventS).toHaveTitle("Heartfulness Event Registration - Heartfulness.org")
-        // const EventSs = await EventS.title();
-        
-        // console.log("06.", EventSs);
-        
-        // await EventS.waitForTimeout(3000)
-        // await EventS.close()
-    } catch (error) {
-        console.log("Error with Events", error.message);
-    }
-   
-    
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
+
+
+test('Heartfulness -> Explore all events (close popups)', async ({ page }) => {
+    test.setTimeout(90000);
 
     try {
-        // Getting Better Sleep
-        await page.locator("(//i[@class='pi pi-arrow-up-right'])[2]").click();
-        await expect(page).toHaveURL('https://heartfulness.org/in-en/getting-better-sleep');
-        
-        await takeScreenshot(page, 'Getting better sleep')
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-        console.log("07.Getting better sleep.");
-        await page.waitForTimeout(2000)
-        await page.getByText('Back').first().click();
+        // --- Click Heartfulness logo to return home ---
+        await page.getByRole('link', { name: 'HeartfulnessLogo_Blk_Pwd' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(1500);
 
-        await expect(page).toHaveURL('https://heartfulness.org/in-en/heartfulness-blogs');
-        console.log("08.Heartfulness Blogs");
-       
-        //Home Button
-        await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-        await takeScreenshot(page, 'Home')
-        await page.waitForLoadState();
+        // --- Click Explore all events button ---
+        await page.getByRole('button', { name: 'Explore all events' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2000);
 
+        // --- Click first event card - opens a popup, then close it ---
+        const popupPromise1 = page.waitForEvent('popup');
+        await page.locator('.mt-3 > .flex').first().click();
+        const popup1 = await popupPromise1;
+        await popup1.waitForLoadState('domcontentloaded').catch(() => {});
+        console.log('First popup opened:', popup1.url());
+        await popup1.close();
+        await sleep(1000);
+
+        await takeScreenshot(page, 'After_First_Popup_Closed');
+
+        // --- Click second event card (batch no heartfulness) - opens popup, then close it ---
+        const popupPromise2 = page.waitForEvent('popup');
+        await page.locator('div').filter({
+            hasText: /^batch no heartfulnessKanha Shanti VanamVIEW DETAILS$/
+        }).getByRole('button').click();
+        const popup2 = await popupPromise2;
+        await popup2.waitForLoadState('domcontentloaded').catch(() => {});
+        console.log('Second popup opened:', popup2.url());
+        await popup2.close();
+        await sleep(1000);
+
+        await takeScreenshot(page, 'After_Second_Popup_Closed');
+
+        console.log('✓ Explore all events flow completed - both popups closed');
     } catch (error) {
-        console.log("Error with Heartfulness Blogs", error.message);
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'ExploreAllEvents_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
     }
-
-    try {
-       
-        // Thought
-        await page.waitForLoadState()
-        await page.waitForTimeout(3000)
-        await page.locator("(//i[@class='pi pi-arrow-up-right'])[3]").click();
-        
-        await takeScreenshot(page, 'Thoughts')
-
-        await expect(page).toHaveURL('https://heartfulness.org/in-en/subscribe-to-one-beautiful-thought');
-        console.log('09.one-beautiful-thought | Heartfulness');
-
-        // Form
-        await page.locator("//span[text()='SUBSCRIBE']").click();
-
-        await takeScreenshot(page, 'Action performed in Subscribe button')
-
-        await page.locator('input[name="fname"]').fill('Test');
-        await page.locator('input[name="lname"]').fill('Qa');
-        await page.locator('input[name="from"]').fill('karadipai@mailinator.com');
-       
-        await page.locator('div').filter({ hasText: /^empty$/ }).nth(1).click();
-     
-        await page.getByLabel('English').click();
-        await page.locator('.p-checkbox-box').click();
-
-        await takeScreenshot(page, 'Completion of Form')
-
-        await page.waitForTimeout(2000)
-
-    } catch (error) {
-        console.log("Error with OBT subscription", error.message);
-    }
-})
+});

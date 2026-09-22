@@ -3,84 +3,75 @@ const { takeScreenshot } = require('../../utils/CommonClass');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const GLOBAL_URL = 'https://awsstaging.heartfulness.org/global/';
+const HFN_URL = 'https://awsstaging.heartfulness.org/in-en/';
 
-async function hideStagingBanner(page) {
-    await page.evaluate(() => {
-        const banners = Array.from(document.querySelectorAll('div'))
-            .filter(div => div.textContent?.trim() === 'QA/STAGING SERVER');
-        banners.forEach(b => b.style.display = 'none');
-    });
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
+
+
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
 }
 
 
-test('Heartfulness Global -> Signin and Abhyasi Bulletin signup', async ({ page }) => {
+test('HFN Global -> Abhyasi Bulletin subscription preferences', async ({ page }) => {
     test.setTimeout(90000);
 
     try {
-        page.on('framenavigated', async () => {
-            try {
-                await hideStagingBanner(page);
-            } catch (e) {
-                // ignore
-            }
-        });
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-        await page.goto(GLOBAL_URL);
-        await hideStagingBanner(page);
-
-        // --- Sign in ---
-        await page.getByLabel('SIGN IN').click();
-        await page.getByRole('link', { name: 'Signin with Email' }).click();
-        await page.waitForLoadState('domcontentloaded');
-
-        await page.getByLabel('Email ID *').fill('ranjithlevine@gmail.com');
-        await page.getByLabel('Password', { exact: true }).fill('Test@123');
-        await page.getByRole('button', { name: 'Sign In' }).click();
-        await page.waitForLoadState('domcontentloaded');
-        await sleep(1000);
-
-        // --- Navigate to Abhyasi Bulletin ---
+        // --- Click "Abhyasi Bulletin" - opens a popup/new tab ---
+        const popupPromise = page.waitForEvent('popup');
         await page.getByRole('link', { name: 'Abhyasi Bulletin' }).click();
-        await page.waitForLoadState('domcontentloaded');
-        await sleep(1000);
+        const bulletinPage = await popupPromise;
+        await bulletinPage.waitForLoadState('domcontentloaded');
+        await sleep(2000);
 
-        // --- Fill form fields ---
-        await page.locator('input[name="fname"]').fill('ranjith');
-        await page.locator('input[name="lname"]').fill('kumar');
-        await page.locator('input[name="from"]').fill('ranjithkumar.krishnamoorthy@volunteer.heartfulness.org');
+        await takeScreenshot(bulletinPage, 'Bulletin_Page_Opened');
 
-        // --- Country dropdown - try multiple approaches ---
-        // Approach 1: Click the country selector to open the dropdown
-        const countrySelector = page.locator('div').filter({ hasText: /^empty$/ }).nth(1);
-        await countrySelector.click();
-        await sleep(500);
-
-        // Approach 2: Type in whichever textbox is now active (the dropdown's search field)
-        await page.keyboard.type('india');
+        // --- Subscribe to English on Abhyasi Bulletin section ---
+        await bulletinPage.locator('#abhyasi-bulletin')
+            .getByRole('button', { name: 'English' }).click();
         await sleep(800);
 
-        // Select India from the dropdown
-        await page.getByLabel('India').click();
+        // --- Enable Daily Reflections toggle ---
+        await bulletinPage.locator('#daily-reflections')
+            .getByLabel('').first().click();
         await sleep(500);
 
-        // --- reCAPTCHA ---
-        await page.locator('iframe[name^="a-"]').contentFrame()
-            .getByLabel('I\'m not a robot').click();
-        await sleep(3000);
+        // --- Enable Whispers toggle ---
+        await bulletinPage.locator('div').filter({
+            hasText: /^WhispersDivine guidance and inner whispers to illuminate your path\.0 Languages$/
+        }).getByLabel('').click();
+        await sleep(500);
 
-        // --- Submit ---
-        await page.getByLabel('SUBMIT').click();
+        // --- Save Preferences ---
+        await bulletinPage.getByRole('button', { name: 'Save Preferences' }).click();
         await sleep(2000);
+
+        await takeScreenshot(bulletinPage, 'Preferences_Saved');
+        console.log('✓ Abhyasi Bulletin preferences saved successfully');
     } catch (error) {
         console.error('Test failed:', error.message);
         if (!page.isClosed()) {
             try {
-                await page.screenshot({
-                    path: `error-bulletin-${Date.now()}.png`,
-                    fullPage: true,
-                    timeout: 5000
-                });
+                await takeScreenshot(page, 'AbhyasiBulletin_Error');
             } catch (screenshotError) {
                 console.error('Screenshot failed:', screenshotError.message);
             }

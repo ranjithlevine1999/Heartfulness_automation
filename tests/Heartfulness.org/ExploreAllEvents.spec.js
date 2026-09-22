@@ -1,52 +1,94 @@
-const{test,expect}=require('@playwright/test')
+const { test, expect } = require('@playwright/test');
 const { takeScreenshot } = require('../../utils/CommonClass');
 
-test('Events',async({page,context})=>{ 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const HFN_URL = 'https://heartfulness.org/in-en/';
+
+const USERNAME = 'ranjithkumar.krishnamoorthy@volunteer.heartfulness.org';
+const PASSWORD = 'Test@123';
+
+const LANGUAGE = 'Hindi';
+
+
+async function loginToHFN(page) {
+    await page.goto(HFN_URL);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1500);
+
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await sleep(500);
+    await page.getByRole('link', { name: 'Signin with Email' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(1000);
+
+    await page.getByLabel('Email ID *').fill(USERNAME);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(2500);
+}
+
+
+test('Heartfulness -> Explore events, filter by Hindi, and view event details', async ({ page }) => {
+    test.setTimeout(120000);
 
     try {
+        // --- Login ---
+        await loginToHFN(page);
+        await takeScreenshot(page, 'After_Login');
 
-        //Launching the Browser
-        await page.goto('https://heartfulness.org/in-en');
-        await takeScreenshot(page, 'Browser launched')
+        // --- Click Explore all events ---
+        await page.getByRole('button', { name: 'Explore all events' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2000);
 
-     
-        // // EventS Home
-       await page.getByRole('link', { name: 'Explore all events' }).click();
-  await page.getByRole('button', { name: 'Clear Filters' }).click();
-  await page.getByLabel('SEARCH').click();
+        // --- Open Language filter dropdown ---
+        await page.locator('div').filter({ hasText: /^LanguageAll$/ })
+            .getByRole('combobox').click();
+        await sleep(800);
 
-//  const page1Promise = page.waitForEvent('popup');
- // await page.getByRole('img', { name: 'Crest Retreat Bangalore, 5th' }).click();
- // const page1 = await page1Promise;
-  await page.locator('.right-arrow').click();
-   } catch (error) {
-        console.log("Error with Events", error.message);
-    }
+        // --- Select Hindi language ---
+        await page.getByText(LANGUAGE, { exact: true }).click();
+        await sleep(500);
 
-    try {
+        // --- Click SEARCH button ---
+        await page.getByLabel('SEARCH').click();
+        await sleep(2000);
+        await takeScreenshot(page, 'Filtered_By_Hindi');
 
-         await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-        // Getting Better Sleep
-        await page.getByRole('link', { name: 'Heartful Suggestions' }).click();
-       // await expect(page).toHaveURL('https://heartfulness.org/in-en/getting-better-sleep');
-        
-        await takeScreenshot(page, 'Heartful Suggestions')
+        // --- Click VIEW DETAILS on first event - opens popup ---
+        const popupPromise = page.waitForEvent('popup', { timeout: 10000 });
+        await page.getByRole('button', { name: 'VIEW DETAILS' }).first().click();
+        const eventPopup = await popupPromise.catch(() => null);
+        if (eventPopup) {
+            await eventPopup.waitForLoadState('domcontentloaded').catch(() => {});
+            console.log('Event details popup opened:', eventPopup.url());
+            await eventPopup.close();
+        }
+        await sleep(1000);
 
-       // console.log("07.Getting better sleep.");
-        await page.waitForTimeout(2000)
-        await page.getByText('Back').first().click();
+        // --- Click FILTER button ---
+        await page.getByLabel('FILTER').click();
+        await sleep(1500);
+        await takeScreenshot(page, 'Filter_Opened');
 
-        //await expect(page).toHaveURL('https://heartfulness.org/in-en/heartfulness-blogs');
-       // console.log("08.Heartfulness Blogs");
-       
-        //Home Button
-        await page.getByRole('link', { name: 'Heartfulnesss Logo' }).click();
-        await takeScreenshot(page, 'Home')
-        await page.waitForLoadState();
+        // --- Navigate back to Events page ---
+        await page.getByRole('link', { name: 'Events' }).click();
+        await page.waitForLoadState('domcontentloaded');
+        await sleep(2000);
+        await takeScreenshot(page, 'Back_To_Events');
 
+        console.log('✓ Events filter Hindi flow completed');
     } catch (error) {
-        console.log("Error with Heartfulness Blogs", error.message);
+        console.error('Test failed:', error.message);
+        if (!page.isClosed()) {
+            try {
+                await takeScreenshot(page, 'Events_Filter_Hindi_Error');
+            } catch (screenshotError) {
+                console.error('Screenshot failed:', screenshotError.message);
+            }
+        }
+        throw error;
     }
-
-   
-})
+});
