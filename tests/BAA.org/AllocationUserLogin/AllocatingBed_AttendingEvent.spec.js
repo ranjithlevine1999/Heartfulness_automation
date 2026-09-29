@@ -89,6 +89,7 @@ test('Allocating Bed --> Attending Event "Search by Name"', async ({ page }) => 
 
 // }
 
+
 //Search using Email
 try{
 
