@@ -107,7 +107,7 @@ test('Heartfulness -> Insights menu - navigate through all links', async ({ page
             });
         }
 
-        // Assert at least one link opened
+        // Assert at   east one link opened
         expect(successfullyOpened.length).toBeGreaterThan(0);
     } catch (error) {
         console.error('Test failed:', error.message);
