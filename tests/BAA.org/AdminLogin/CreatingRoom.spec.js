@@ -3,6 +3,7 @@ const { takeScreenshot } = require('/Users/htcuser/Documents/HFN_Web_Automation/
 
    try{
 
+    
     test('Creating a Room', async ({ page }) => {
     
       await page.goto('https://staging-lodging.aaram.co/login');

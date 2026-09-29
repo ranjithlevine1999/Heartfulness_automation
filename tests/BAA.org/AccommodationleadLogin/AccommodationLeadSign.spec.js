@@ -86,7 +86,7 @@ test.describe('Aaram Lodging Login', () => {
         try {
             await performLogin(page, INVALID_EMAIL, INVALID_PASSWORD);
 
-            // Assert still on Keycloak auth domain (login failed)
+            // Assert still on Keycloak auth  domain (login failed)
             await expect(page).toHaveURL(/hfnauth\.qa\.heartfulness\.org/, { timeout: 5000 });
 
             // Verify error message appears

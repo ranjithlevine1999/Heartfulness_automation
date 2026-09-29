@@ -2,6 +2,7 @@ const{test,expect}=require('@playwright/test')
 const { takeScreenshot } = require('/Users/htcuser/Documents/HFN_Web_Automation/utils/CommonClass.js')
 
 
+
 try{
 
 test('Valid Admin Login', async ({ page }) => {

@@ -29,7 +29,7 @@ await page.getByRole('button', { name: ' Detailed Allocation View' }).click()
   await page.getByText('East Room').click();
   await page.locator('svg').nth(4).click();
 
-  //await page.getByText('Ascending').click();
+  //await page.getByText('Ascending'). click();
 
   await page.getByText('Ascending', { exact: true }).click();
   await page.getByRole('button', { name: 'Search' }).click();

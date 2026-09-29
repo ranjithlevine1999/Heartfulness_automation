@@ -26,7 +26,7 @@ const { takeScreenshot } = require('/Users/htcuser/Documents/HFN_Web_Automation/
   await page.locator('#react-select-2-input').fill('East central');
  
   await page.getByText('East central demo dom', { exact: true }).click();
- // await page.locator('.css-1xc3v61-indicatorContainer > .css-8mmkcg > path').first().click();
+ // await page.locator('.css-1xc3v61-indicatorContain er > .css-8mmkcg > path').first().click();
   await page.locator('th:nth-child(7) > div > .p-fluid > .filterElementWrapper > .hfn_input > .hfn_select_field > .css-13cymwt-control > .css-hlgwow > .css-19bb58m').click();
  
   //await page.getByText('Sisters Only').click();

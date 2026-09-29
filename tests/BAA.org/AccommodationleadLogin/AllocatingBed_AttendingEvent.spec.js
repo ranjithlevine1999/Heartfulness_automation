@@ -66,7 +66,7 @@ async function performLogin(page, email, password) {
 }
 
 
-// Helper: try multiple approaches to change the "Order ID" dropdown to "Name"
+// Helper: try multiple approaches t o change the "Order ID" dropdown to "Name"
 async function changeSearchTypeToName(page) {
     const approaches = [
         // Approach 1: Click "Order ID" text

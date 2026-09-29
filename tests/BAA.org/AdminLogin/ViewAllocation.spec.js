@@ -3,6 +3,7 @@ const { takeScreenshot } = require('/Users/htcuser/Documents/HFN_Web_Automation/
 
 
  
+
 try{
  
  test('View Allocation', async ({ page }) => {

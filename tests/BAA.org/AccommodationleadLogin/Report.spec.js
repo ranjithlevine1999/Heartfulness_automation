@@ -64,7 +64,7 @@ try{
   await page.getByText('East central demo dom', { exact: true }).click();
 
 
- // await page.locator('#react-select-8-input').fill('East Central demo');
+ // await page.locator('#react-select-8-inpu t').fill('East Central demo');
   //await page.getByText('East central demo dom', { exact: true }).click();
   await page.getByLabel('Search').click();
   await page.getByLabel('Clear').click();

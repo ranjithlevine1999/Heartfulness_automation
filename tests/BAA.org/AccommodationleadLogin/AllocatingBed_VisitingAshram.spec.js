@@ -1,7 +1,7 @@
 const{test,expect}=require('@playwright/test')
 const { takeScreenshot } = require('/Users/htcuser/Documents/HFN_Web_Automation/utils/CommonClass.js')
 
-//Search by Name
+//Search  by Name
 try{
 
     test('Allocating Bed --> Visiting Ashram Event "Search by Name" ', async ({ page }) => {
